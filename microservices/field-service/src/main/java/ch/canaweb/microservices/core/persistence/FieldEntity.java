@@ -1,8 +1,19 @@
-package ch.canaweb.api.core.Field;
+package ch.canaweb.microservices.core.persistence;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-public class Field {
+@Document(collection="fields")
+public class FieldEntity {
+    @Id
+    private String id;
+
+    @Version
+    private Integer version;
+
     private int fieldId;
     private String name;
     private String owner;
@@ -12,10 +23,10 @@ public class Field {
     private String ingenioId;
     private Date lastUpdated;
 
-    public Field() {
+    public FieldEntity() {
     }
 
-    public Field(int fieldId, String name, String owner, double size, double cultivatedArea, Date acquisitionDate, String ingenioId, Date lastUpdated) {
+    public FieldEntity(int fieldId, String name, String owner, double size, double cultivatedArea, Date acquisitionDate, String ingenioId, Date lastUpdated) {
         this.fieldId = fieldId;
         this.name = name;
         this.owner = owner;
@@ -26,8 +37,16 @@ public class Field {
         this.lastUpdated = lastUpdated;
     }
 
+    public String getId() { return id; }
+
+    public Integer getVersion() { return version; }
+
     public int getFieldId() {
         return fieldId;
+    }
+
+    public void setFieldId(int fieldId) {
+        this.fieldId = fieldId;
     }
 
     public String getName() {
@@ -84,9 +103,5 @@ public class Field {
 
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
-    }
-
-    public void setFieldId(int fieldId) {
-        this.fieldId = fieldId;
     }
 }

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  field:
+    build: microservices/field-service
+    mem_limit: 350m
+    ports:
+      - "8001:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - TZ=Europe/Zurich
+    links:
+      - mongodb
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  field-composite:
+    build: microservices/field-composite-service
+    mem_limit: 350m
+    ports:
+      - "8010:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - TZ=Europe/Zurich
+
+
+  # $ mongo
+  mongodb:
+    image: mongo:latest
+    mem_limit: 350m
+    ports:
+      - "27017:27017"
+    command: mongod
+    healthcheck:
+      test: "mongo --eval 'db.stats().ok'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - TZ=Europe/Zurich
