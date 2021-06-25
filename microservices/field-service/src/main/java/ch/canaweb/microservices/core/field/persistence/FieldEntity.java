@@ -1,7 +1,8 @@
-package ch.canaweb.microservices.core.persistence;
+package ch.canaweb.microservices.core.field.persistence;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -14,7 +15,9 @@ public class FieldEntity {
     @Version
     private Integer version;
 
+    @Indexed(unique = true)
     private int fieldId;
+
     private String name;
     private String owner;
     private double size;

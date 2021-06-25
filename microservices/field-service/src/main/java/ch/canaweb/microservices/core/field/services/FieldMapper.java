@@ -1,7 +1,7 @@
-package ch.canaweb.microservices.core.services;
+package ch.canaweb.microservices.core.field.services;
 
 import ch.canaweb.api.core.Field.Field;
-import ch.canaweb.microservices.core.persistence.FieldEntity;
+import ch.canaweb.microservices.core.field.persistence.FieldEntity;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -15,4 +15,7 @@ public interface FieldMapper {
         @Mapping(target = "version", ignore = true)
     })
     FieldEntity apiToEntity(Field api);
+
+
+    void updateEntityWithApi(@MappingTarget FieldEntity entity, Field api);
 }

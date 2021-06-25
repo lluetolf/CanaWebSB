@@ -1,6 +1,6 @@
-package ch.canaweb.microservices.core;
+package ch.canaweb.microservices.core.field;
 
-import ch.canaweb.microservices.core.persistence.FieldEntity;
+import ch.canaweb.microservices.core.field.persistence.FieldEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
-package ch.canaweb.microservices.core.persistence;
+package ch.canaweb.microservices.core.field.persistence;
 
+import ch.canaweb.api.core.Field.Field;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
@@ -12,4 +13,7 @@ public interface FieldRepository extends ReactiveMongoRepository<FieldEntity, St
     Mono<FieldEntity> findByName(String name);
 
     Flux<FieldEntity> findAll();
+
+    Mono<Void> deleteByFieldId(int fieldId);
+
 }

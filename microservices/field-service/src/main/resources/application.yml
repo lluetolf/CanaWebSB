@@ -1,5 +1,7 @@
 server.error.include-message: always
 
+spring.jackson.deserialization.fail-on-unknown-properties: true
+
 spring.data.mongodb:
   host: localhost
   port: 27017
