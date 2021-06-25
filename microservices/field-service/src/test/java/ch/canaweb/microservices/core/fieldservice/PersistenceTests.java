@@ -22,15 +22,17 @@ public class PersistenceTests {
 
     private FieldEntity savedEntity;
 
+    private FieldEntity baseEntity = new FieldEntity(1, "oinky_field", "oinky_the_owner", 22.0, 19.2, new Date(), "oinky-ingenio-id", new Date());
+
     @BeforeEach
    	public void setupDb() {
         StepVerifier.create(repository.deleteAll()).verifyComplete();
 
-        FieldEntity entity = new FieldEntity(1, "oinky_field", "oinky_the_owner", 22.0, 19.2, new Date(), "oinky-ingenio-id", new Date());
-        StepVerifier.create(repository.save(entity))
+
+        StepVerifier.create(repository.save(baseEntity))
             .expectNextMatches(createdEntity -> {
                 savedEntity = createdEntity;
-                return areFieldEqual(entity, savedEntity);
+                return areFieldEqual(baseEntity, savedEntity);
             })
             .verifyComplete();
     }
@@ -38,7 +40,7 @@ public class PersistenceTests {
 
     @Test
    	public void create() {
-        FieldEntity newEntity = new FieldEntity(1, "monkey_field", "monkey_the_owner", 22.0, 19.2, new Date(), "monkey-ingenio-id", new Date());
+        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, new Date(), "monkey-ingenio-id", new Date());
 
         StepVerifier.create(repository.save(newEntity))
             .expectNextMatches(createdEntity -> newEntity.getFieldId() == createdEntity.getFieldId())
@@ -47,8 +49,19 @@ public class PersistenceTests {
         StepVerifier.create(repository.findById(newEntity.getId()))
             .expectNextMatches(foundEntity -> areFieldEqual(newEntity, foundEntity))
             .verifyComplete();
+    }
 
-        StepVerifier.create(repository.count()).expectNext(2l).verifyComplete();
+    @Test
+    public void createInvalid() {
+        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, new Date(), "monkey-ingenio-id", new Date());
+
+        StepVerifier.create(repository.save(newEntity))
+                .expectNextMatches(createdEntity -> newEntity.getFieldId() == createdEntity.getFieldId())
+                .verifyComplete();
+
+        StepVerifier.create(repository.findById(newEntity.getId()))
+                .expectNextMatches(foundEntity -> areFieldEqual(newEntity, foundEntity))
+                .verifyComplete();
     }
 
 
