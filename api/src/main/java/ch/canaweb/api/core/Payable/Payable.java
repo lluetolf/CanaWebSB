@@ -3,7 +3,7 @@ package ch.canaweb.api.core.Payable;
 import java.util.Date;
 
 public class Payable {
-    private int id;
+    private int payableId;
     private Date transactionDate;
     private double pricePerUnit;
     private double quantity;
@@ -14,7 +14,11 @@ public class Payable {
     private String comment;
     private Date lastUpdated;
 
-    public Payable(Date transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, Date lastUpdated) {
+    public Payable() {
+    }
+
+    public Payable(int payableId, Date transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, Date lastUpdated) {
+        this.payableId = payableId;
         this.transactionDate = transactionDate;
         this.pricePerUnit = pricePerUnit;
         this.quantity = quantity;
@@ -26,8 +30,8 @@ public class Payable {
         this.lastUpdated = lastUpdated;
     }
 
-    public int getId() {
-        return id;
+    public int getPayableId() {
+        return payableId;
     }
 
     public Date getLastUpdated() {

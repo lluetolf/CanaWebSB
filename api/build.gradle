@@ -15,7 +15,7 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 group = 'ch.canaweb.api'
 version = '0.0.1-SNAPSHOT'
