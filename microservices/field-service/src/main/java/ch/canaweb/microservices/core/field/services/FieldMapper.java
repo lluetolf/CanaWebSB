@@ -16,6 +16,9 @@ public interface FieldMapper {
     })
     FieldEntity apiToEntity(Field api);
 
-
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "version", ignore = true)
+    })
     void updateEntityWithApi(@MappingTarget FieldEntity entity, Field api);
 }

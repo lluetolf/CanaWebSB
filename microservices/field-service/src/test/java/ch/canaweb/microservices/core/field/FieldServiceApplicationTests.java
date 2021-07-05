@@ -1,9 +1,9 @@
-package ch.canaweb.microservices.core.fieldservice;
+package ch.canaweb.microservices.core.field;
 
 
 import ch.canaweb.api.core.Field.Field;
-import ch.canaweb.microservices.core.persistence.FieldEntity;
-import ch.canaweb.microservices.core.persistence.FieldRepository;
+import ch.canaweb.microservices.core.field.persistence.FieldEntity;
+import ch.canaweb.microservices.core.field.persistence.FieldRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

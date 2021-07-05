@@ -1,4 +1,4 @@
-package ch.canaweb.microservices.core.fieldservice;
+package ch.canaweb.microservices.core.field;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,8 @@ import reactor.test.StepVerifier;
 
 import java.util.Date;
 
-import ch.canaweb.microservices.core.persistence.FieldEntity;
-import ch.canaweb.microservices.core.persistence.FieldRepository;
+import ch.canaweb.microservices.core.field.persistence.FieldEntity;
+import ch.canaweb.microservices.core.field.persistence.FieldRepository;
 
 @ExtendWith(SpringExtension.class)
 @DataMongoTest

@@ -1,27 +1,38 @@
+buildscript {
+    ext {
+        springBootVersion = '2.5.1'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
 plugins {
-    id 'org.springframework.boot' version '2.5.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
 }
 
-test {
-    useJUnitPlatform()
-}
+apply plugin: 'java'
+apply plugin: 'idea'
 
-group = 'ch.canaweb'
+group = 'ch.canaweb.util'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-webflux')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-test {
-    useJUnitPlatform()
+dependencyManagement {
+    imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
 }
+
