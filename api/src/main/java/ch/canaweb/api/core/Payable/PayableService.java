@@ -1,10 +1,13 @@
 package ch.canaweb.api.core.Payable;
 
 import ch.canaweb.api.core.Field.Field;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDate;
 
 public interface PayableService {
 
@@ -25,6 +28,14 @@ public interface PayableService {
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     Flux<Payable> getAllPayables();
+
+    @GetMapping(
+            value    = "/payable/between",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Flux<Payable> getAllPayablesBetween(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to);
 
     @PostMapping(
             path = "/payable",
