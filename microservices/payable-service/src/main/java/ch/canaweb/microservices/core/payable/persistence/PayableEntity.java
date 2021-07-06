@@ -20,7 +20,7 @@ public class PayableEntity extends Payable {
     }
 
     public String getId() {
-        return id;
+        return id + "";
     }
 
     public void setId(String id) {
