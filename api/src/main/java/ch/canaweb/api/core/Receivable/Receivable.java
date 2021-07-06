@@ -13,7 +13,9 @@ public class Receivable {
     public Receivable() {
     }
 
-    public Receivable(LocalDate transactionDate, String documentId, int fieldId, LocalDate lastUpdated) {
+    public Receivable(int receivableId, String zafra, LocalDate transactionDate, String documentId, int fieldId, LocalDate lastUpdated) {
+        this.receivableId = receivableId;
+        this.zafra = zafra;
         this.transactionDate = transactionDate;
         this.documentId = documentId;
         this.fieldId = fieldId;

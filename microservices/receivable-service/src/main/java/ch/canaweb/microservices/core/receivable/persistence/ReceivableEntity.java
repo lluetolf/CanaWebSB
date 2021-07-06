@@ -18,8 +18,8 @@ public class ReceivableEntity extends Receivable {
     public ReceivableEntity() {
     }
 
-    public ReceivableEntity(LocalDate transactionDate, String documentId, int fieldId, LocalDate lastUpdated) {
-        super(transactionDate, documentId, fieldId, lastUpdated);
+    public ReceivableEntity(int receivableId, String zafra, LocalDate transactionDate, String documentId, int fieldId, LocalDate lastUpdated) {
+        super(receivableId, zafra, transactionDate, documentId, fieldId, lastUpdated);
     }
 
     public String getId() {
