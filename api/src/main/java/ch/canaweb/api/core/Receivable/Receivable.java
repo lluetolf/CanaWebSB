@@ -1,26 +1,29 @@
 package ch.canaweb.api.core.Receivable;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Receivable {
-    private int id;
-    private Date transactionDate;
+    private int receivableId;
+    private LocalDate transactionDate;
     private String documentId;
     private int fieldId;
-    private Date lastUpdated;
+    private LocalDate lastUpdated;
 
-    public Receivable(Date transactionDate, String documentId, int fieldId, Date lastUpdated) {
+    public Receivable() {
+    }
+
+    public Receivable(LocalDate transactionDate, String documentId, int fieldId, LocalDate lastUpdated) {
         this.transactionDate = transactionDate;
         this.documentId = documentId;
         this.fieldId = fieldId;
         this.lastUpdated = lastUpdated;
     }
 
-    public Date getTransactionDate() {
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
 
-    public void setTransactionDate(Date transactionDate) {
+    public void setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
     }
 
@@ -40,11 +43,19 @@ public class Receivable {
         this.fieldId = fieldId;
     }
 
-    public int getId() {
-        return id;
+    public int getReceivableId() {
+        return receivableId;
     }
 
-    public Date getLastUpdated() {
+    public LocalDate getLastUpdated() {
         return lastUpdated;
+    }
+
+    public void setReceivableId(int receivableId) {
+        this.receivableId = receivableId;
+    }
+
+    public void setLastUpdated(LocalDate lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }
