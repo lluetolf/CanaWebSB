@@ -31,7 +31,8 @@ public class FieldServiceApplication {
 
         String mongodDbHost = ctx.getEnvironment().getProperty("spring.data.mongodb.host");
         String mongodDbPort = ctx.getEnvironment().getProperty("spring.data.mongodb.port");
-        LOG.info("Connected to MongoDb: " + mongodDbHost + ":" + mongodDbPort);
+        String mongodDbDatabase = ctx.getEnvironment().getProperty("spring.data.mongodb.database");
+        LOG.info("Connected to MongoDb: " + mongodDbHost + ":" + mongodDbPort + "/" + mongodDbDatabase);
 
         String canaweb_env = ctx.getEnvironment().getProperty("canaweb_env");
         LOG.info("CanaWeb Env: " + canaweb_env);
