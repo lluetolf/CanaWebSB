@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class Receivable {
     private int receivableId;
+    private String zafra;
     private LocalDate transactionDate;
     private String documentId;
     private int fieldId;
@@ -57,5 +58,13 @@ public class Receivable {
 
     public void setLastUpdated(LocalDate lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getZafra() {
+        return zafra;
+    }
+
+    public void setZafra(String zafra) {
+        this.zafra = zafra;
     }
 }
