@@ -188,9 +188,14 @@ class FieldServiceApplicationTests {
 
     @Test
     public void deleteField() {
-        int fieldId = 1;
+        int fieldId = 777;
 
-        assertCount(0);
+        client.delete()
+                .uri("/field/" + fieldId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
         FieldEntity entity = new FieldEntity(fieldId, "oinky_field", "oinky_the_owner", 22.0, 88.8, new Date(), "oinky-ingenio-id", new Date());
         repository.insert(entity).block();
         assertCount(1);

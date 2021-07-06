@@ -101,5 +101,13 @@ public class Payable {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public void setPayableId(int payableId) {
+        this.payableId = payableId;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
 }
 

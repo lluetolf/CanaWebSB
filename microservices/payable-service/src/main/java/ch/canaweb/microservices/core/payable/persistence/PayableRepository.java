@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public interface PayableRepository extends ReactiveMongoRepository<PayableEntity, String> {
 
@@ -16,5 +16,5 @@ public interface PayableRepository extends ReactiveMongoRepository<PayableEntity
 
     Mono<Void> deleteByPayableId(int fieldId);
 
-    Flux<PayableEntity> findByTransactionDateBetween(Date from, Date to);
+    Flux<PayableEntity> findByTransactionDateBetween(LocalDate from, LocalDate to);
 }
