@@ -3,4 +3,5 @@ include ':util'
 
 include ':microservices:payable-service'
 include ':microservices:field-service'
+include ':microservices:receivable-service'
 include ':microservices:field-composite-service'
