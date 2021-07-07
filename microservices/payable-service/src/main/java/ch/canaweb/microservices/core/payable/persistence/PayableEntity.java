@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Document(collection="payables")
 public class PayableEntity extends Payable {
@@ -20,7 +21,7 @@ public class PayableEntity extends Payable {
     }
 
     public String getId() {
-        return id + "";
+        return Objects.requireNonNull(id);
     }
 
     public void setId(String id) {
