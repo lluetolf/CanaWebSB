@@ -1,6 +1,6 @@
 package ch.canaweb.api.core.Field;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Field {
     private int fieldId;
@@ -8,14 +8,14 @@ public class Field {
     private String owner;
     private double size;
     private double cultivatedArea;
-    private Date acquisitionDate;
+    private LocalDate acquisitionDate;
     private String ingenioId;
-    private Date lastUpdated;
+    private LocalDate lastUpdated;
 
     public Field() {
     }
 
-    public Field(int fieldId, String name, String owner, double size, double cultivatedArea, Date acquisitionDate, String ingenioId, Date lastUpdated) {
+    public Field(int fieldId, String name, String owner, double size, double cultivatedArea, LocalDate acquisitionDate, String ingenioId, LocalDate lastUpdated) {
         this.fieldId = fieldId;
         this.name = name;
         this.owner = owner;
@@ -62,11 +62,11 @@ public class Field {
         this.cultivatedArea = cultivatedArea;
     }
 
-    public Date getAcquisitionDate() {
+    public LocalDate getAcquisitionDate() {
         return acquisitionDate;
     }
 
-    public void setAcquisitionDate(Date acquisitionDate) {
+    public void setAcquisitionDate(LocalDate acquisitionDate) {
         this.acquisitionDate = acquisitionDate;
     }
 
@@ -78,11 +78,11 @@ public class Field {
         this.ingenioId = ingenioId;
     }
 
-    public Date getLastUpdated() {
+    public LocalDate getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Date lastUpdated) {
+    public void setLastUpdated(LocalDate lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
