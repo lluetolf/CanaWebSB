@@ -14,6 +14,12 @@ public interface FieldService {
     Mono<Field> getField(@PathVariable int fieldId);
 
     @GetMapping(
+            path = "/field/name/{name}",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<Field> getFieldByName(@PathVariable String name);
+
+    @GetMapping(
             path = "/field",
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)

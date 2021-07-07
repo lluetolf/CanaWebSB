@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import ch.canaweb.microservices.core.field.persistence.FieldEntity;
@@ -22,7 +23,7 @@ public class PersistenceTests {
 
     private FieldEntity savedEntity;
 
-    private FieldEntity baseEntity = new FieldEntity(1, "oinky_field", "oinky_the_owner", 22.0, 19.2, new Date(), "oinky-ingenio-id", new Date());
+    private FieldEntity baseEntity = new FieldEntity(1, "oinky_field", "oinky_the_owner", 22.0, 19.2, LocalDate.now(), "oinky-ingenio-id", LocalDate.now());
 
     @BeforeEach
    	public void setupDb() {
@@ -40,7 +41,7 @@ public class PersistenceTests {
 
     @Test
    	public void create() {
-        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, new Date(), "monkey-ingenio-id", new Date());
+        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, LocalDate.now(), "monkey-ingenio-id", LocalDate.now());
 
         StepVerifier.create(repository.save(newEntity))
             .expectNextMatches(createdEntity -> newEntity.getFieldId() == createdEntity.getFieldId())
@@ -53,7 +54,7 @@ public class PersistenceTests {
 
     @Test
     public void createInvalid() {
-        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, new Date(), "monkey-ingenio-id", new Date());
+        FieldEntity newEntity = new FieldEntity(2, "monkey_field", "monkey_the_owner", 22.0, 19.2, LocalDate.now(), "monkey-ingenio-id", LocalDate.now());
 
         StepVerifier.create(repository.save(newEntity))
                 .expectNextMatches(createdEntity -> newEntity.getFieldId() == createdEntity.getFieldId())

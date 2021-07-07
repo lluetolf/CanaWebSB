@@ -38,6 +38,15 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    public Mono<Field> getFieldByName(String name) {
+        LOG.info("Fetch Field with name: " + name);
+        return repository.findByName(name)
+                .map(mapper::entityToApi)
+                .log()
+                .switchIfEmpty(Mono.error(new DataNotFoundException("No field found for fieldId: " + name)));
+    }
+
+    @Override
     public Flux<Field> getAllFields() {
         LOG.info("Fetch all fields.");
         return repository.findAll()
