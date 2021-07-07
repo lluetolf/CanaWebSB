@@ -39,7 +39,7 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     public Flux<Receivable> getReceivableForField(int fieldId) {
-        LOG.info("Fetch Receivable swith fieldId: " + fieldId);
+        LOG.info("Fetch Receivables with fieldId: " + fieldId);
         return repository.findByFieldId(fieldId)
                 .log()
                 .onErrorMap(Exception.class, ex -> ex)

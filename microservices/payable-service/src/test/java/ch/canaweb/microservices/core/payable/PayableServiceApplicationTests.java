@@ -21,10 +21,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -148,7 +145,8 @@ class PayableServiceApplicationTests {
 
         PayableEntity newPayable = repository.findByPayableId(payableId).block();
 
-        assertEquals(oldPayable.getId(), newPayable.getId());
+        assertEquals(Objects.requireNonNull(oldPayable.getId()), Objects.requireNonNull(newPayable.getId()));
+        assertEquals(oldPayable.getPayableId(), newPayable.getPayableId());
 
         assertNotEquals(oldPayable.getCategory(), newPayable.getCategory());
         assertNotEquals(oldPayable.getSubCategory(), newPayable.getSubCategory());

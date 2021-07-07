@@ -15,7 +15,7 @@ public interface ReceivableService {
     Mono<Receivable> getReceivable(@PathVariable int receivableId);
 
     @GetMapping(
-            value    = "/payable/field/{fieldId}",
+            value    = "/receivable/field/{fieldId}",
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     Flux<Receivable> getReceivableForField(@PathVariable int fieldId);
@@ -27,21 +27,21 @@ public interface ReceivableService {
     Flux<Receivable> getAllReceivables();
 
     @PostMapping(
-            path = "/payable",
+            path = "/receivable",
             consumes = "application/json",
             produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     Mono<Receivable> createReceivable(@RequestBody Receivable body);
 
     @PutMapping(
-            path = "/payable",
+            path = "/receivable",
             consumes = "application/json",
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     Mono<Receivable> updateReceivable(@RequestBody Receivable body);
 
     @DeleteMapping(
-            path = "/payable/{payableId}")
+            path = "/receivable/{receivableId}")
     @ResponseStatus(HttpStatus.OK)
-    Mono<Void> deleteReceivable(@PathVariable int payableId);
+    Mono<Void> deleteReceivable(@PathVariable int receivableId);
 }
