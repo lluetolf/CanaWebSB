@@ -6,6 +6,8 @@ import ch.canaweb.microservices.core.payable.persistence.PayableRepository;
 import ch.canaweb.microservices.core.payable.services.PayableMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +72,7 @@ class PayableServiceApplicationTests {
         assertNotNull(repository.findByPayableId(payableId).block());
 
         WebTestClient.BodyContentSpec res = getAndVerifyPayable(payableId, HttpStatus.OK);
-        System.out.println(res);
+
     }
 
     @Test
@@ -104,6 +106,8 @@ class PayableServiceApplicationTests {
 
         String str = new String(a.getResponseBody());
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         List<Payable> payables = Arrays.asList(objectMapper.readValue(str, Payable[].class));
         assertEquals(3, payables.size());
     }
@@ -128,6 +132,8 @@ class PayableServiceApplicationTests {
 
         assertCount(13);
     }
+
+    //TODO: add duplicateerror
 
     @Test
     public void updatePayable() {
@@ -189,6 +195,8 @@ class PayableServiceApplicationTests {
                 .uri("/payable/" + noneExistingPayableId)
                 .exchange()
                 .expectStatus().isOk();
+
+        assertCount(11);
     }
 
     @Test

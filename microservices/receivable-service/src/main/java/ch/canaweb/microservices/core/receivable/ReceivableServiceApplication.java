@@ -10,8 +10,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexResolver;
 import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver;
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperations;
@@ -47,5 +49,7 @@ public class ReceivableServiceApplication {
 
         ReactiveIndexOperations indexOps = mongoTemplate.indexOps(ReceivableEntity.class);
         resolver.resolveIndexFor(ReceivableEntity.class).forEach(e -> indexOps.ensureIndex(e).block());
+
+        mongoTemplate.indexOps("receivables").ensureIndex(new Index("receivableId", Sort.Direction.ASC).unique());
     }
 }
