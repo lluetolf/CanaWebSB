@@ -1,6 +1,10 @@
 package ch.canaweb.microservices.composite.field.services;
 
+import ch.canaweb.api.composite.field.CompositeField;
 import ch.canaweb.api.composite.field.MicroServiceStatus;
+import ch.canaweb.api.core.Field.Field;
+import ch.canaweb.api.core.Payable.Payable;
+import ch.canaweb.api.core.Receivable.Receivable;
 import ch.canaweb.util.exception.DataNotFoundException;
 import ch.canaweb.util.exception.InvalidInputException;
 import ch.canaweb.util.http.HttpErrorInfo;
@@ -17,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Component
@@ -83,6 +88,24 @@ public class FieldCompositeIntegration {
                         return Mono.just("UP");
                 })
                 .onErrorMap(WebClientResponseException.class, this::handleException);
+    }
+
+    public Mono<CompositeField> getCompositeField(int fieldId) {
+        return Mono.zip(
+                values -> new CompositeField((Field) values[0], (List<Payable>) values[2], (List<Receivable>) values[2]),
+                    webClient.get().uri(fieldServiceUrl + "/field/" + fieldId)
+                        .retrieve()
+                        .bodyToMono(Field.class)
+                        .log(),
+                webClient.get().uri(payableServiceUrl + "/payable/field/" + fieldId)
+                        .retrieve()
+                        .bodyToFlux(Payable.class)
+                        .log().collectList(),
+                webClient.get().uri(fieldServiceUrl + "/receivable/field/" + fieldId)
+                        .retrieve()
+                        .bodyToFlux(Receivable.class)
+                        .log().collectList()
+                );
     }
 
     public Mono<MicroServiceStatus> getAllUpstreamStatus() {
