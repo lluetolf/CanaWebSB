@@ -1,5 +1,4 @@
 server.error.include-message: always
-canaweb_env: "DEV"
 
 logging:
   level:
@@ -8,11 +7,21 @@ logging:
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+
 ---
 spring.config.activate.on-profile: docker
 server.port: 8080
-canaweb_env: "DOCKER"
+
+app:
+  field-service:
+    host: field
+    port: 8080
+  payable-service:
+    host: payable
+    port: 8080
+  receivable-service:
+    host: receivable
+    port: 8080
 
 ---
 spring.config.activate.on-profile: prod
-canaweb_env: "PROD"

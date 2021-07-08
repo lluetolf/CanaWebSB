@@ -17,8 +17,7 @@ public class FieldCompositeServiceApplication {
 
         ConfigurableApplicationContext ctx = SpringApplication.run(FieldCompositeServiceApplication.class, args);
 
-        String canaweb_env = ctx.getEnvironment().getProperty("canaweb_env");
-        LOG.info("CanaWeb Env: " + canaweb_env);
+        LOG.info("Tripple Hello");
     }
 
 }

@@ -1,5 +1,6 @@
 package ch.canaweb.api.core.composite.field;
 
+import ch.canaweb.api.composite.field.MicroServiceStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.*;
@@ -14,4 +15,9 @@ public interface FieldCompositeService {
             value ="/field-composite",
             produces = "application/json")
     Flux<String> getCompositeFields();
+
+    @GetMapping(
+            value ="/upstream-status",
+            produces = "application/json")
+    Mono<MicroServiceStatus> getUpstreamMicroServicesStatus();
 }
