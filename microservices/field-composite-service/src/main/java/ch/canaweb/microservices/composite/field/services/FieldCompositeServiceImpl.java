@@ -1,5 +1,6 @@
 package ch.canaweb.microservices.composite.field.services;
 
+import ch.canaweb.api.composite.field.MicroServiceStatus;
 import ch.canaweb.api.core.composite.field.FieldCompositeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,12 @@ import java.util.List;
 public class FieldCompositeServiceImpl implements FieldCompositeService {
 
     private static final Logger LOG = LoggerFactory.getLogger(FieldCompositeServiceImpl.class);
+
+    private final FieldCompositeIntegration integration;
+
+    public FieldCompositeServiceImpl(FieldCompositeIntegration integration) {
+        this.integration = integration;
+    }
 
     @Override
     public Mono<String> getCompositeField(int fieldId) {
@@ -34,6 +41,12 @@ public class FieldCompositeServiceImpl implements FieldCompositeService {
                 "lazy",
                 "dog"
         );
+
         return Flux.fromIterable(words);
+    }
+
+    @Override
+    public Mono<MicroServiceStatus> getUpstreamMicroServicesStatus() {
+            return integration.getAllUpstreamStatus();
     }
 }
