@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -40,13 +41,13 @@ public class FieldCompositeIntegration {
             ObjectMapper mapper,
 
             @Value("${app.field-service.host}") String fieldServiceHost,
-            @Value("${app.field-service.port}") int    fieldServicePort,
+            @Value("${app.field-service.port}") int fieldServicePort,
 
             @Value("${app.payable-service.host}") String payableServiceHost,
-            @Value("${app.payable-service.port}") int    payableServicePort,
+            @Value("${app.payable-service.port}") int payableServicePort,
 
             @Value("${app.receivable-service.host}") String receivableServiceHost,
-            @Value("${app.receivable-service.port}") int    receivableServicePort
+            @Value("${app.receivable-service.port}") int receivableServicePort
     ) {
         this.webClient = webClient
                 .filter(logRequest())
@@ -80,32 +81,14 @@ public class FieldCompositeIntegration {
                 .uri(url)
                 .retrieve().bodyToMono(String.class)
                 .log()
-                .flatMap( s -> {
+                .flatMap(s -> {
                     LOG.info("Got: " + s);
-                    if(s.contains("UP"))
+                    if (s.contains("UP"))
                         return Mono.just("UP");
                     else
                         return Mono.just("UP");
                 })
                 .onErrorMap(WebClientResponseException.class, this::handleException);
-    }
-
-    public Mono<CompositeField> getCompositeField(int fieldId) {
-        return Mono.zip(
-                values -> new CompositeField((Field) values[0], (List<Payable>) values[2], (List<Receivable>) values[2]),
-                    webClient.get().uri(fieldServiceUrl + "/field/" + fieldId)
-                        .retrieve()
-                        .bodyToMono(Field.class)
-                        .log(),
-                webClient.get().uri(payableServiceUrl + "/payable/field/" + fieldId)
-                        .retrieve()
-                        .bodyToFlux(Payable.class)
-                        .log().collectList(),
-                webClient.get().uri(fieldServiceUrl + "/receivable/field/" + fieldId)
-                        .retrieve()
-                        .bodyToFlux(Receivable.class)
-                        .log().collectList()
-                );
     }
 
     public Mono<MicroServiceStatus> getAllUpstreamStatus() {
@@ -114,7 +97,10 @@ public class FieldCompositeIntegration {
                 checkServiceHeartBeat(fieldServiceUrl),
                 checkServiceHeartBeat(payableServiceUrl),
                 checkServiceHeartBeat(receivableServiceUrl))
-                .map(x -> { LOG.info(x.toString()); return x; })
+                .map(x -> {
+                    LOG.info(x.toString());
+                    return x;
+                })
                 .doOnError(ex -> LOG.warn("getAllUpstreamStatus failed: {}", ex.toString()))
                 .log();
     }
@@ -134,14 +120,14 @@ public class FieldCompositeIntegration {
             return ex;
         }
 
-        WebClientResponseException wcre = (WebClientResponseException)ex;
+        WebClientResponseException wcre = (WebClientResponseException) ex;
 
         switch (wcre.getStatusCode()) {
 
             case NOT_FOUND:
                 return new DataNotFoundException(getErrorMessage(wcre));
 
-            case UNPROCESSABLE_ENTITY :
+            case UNPROCESSABLE_ENTITY:
                 return new InvalidInputException(getErrorMessage(wcre));
 
             default:
@@ -157,5 +143,36 @@ public class FieldCompositeIntegration {
         } catch (IOException ioex) {
             return ex.getMessage();
         }
+    }
+
+    public Flux<Field> getAllFields() {
+        return webClient.get().uri(fieldServiceUrl + "/field")
+                .retrieve()
+                .bodyToFlux(Field.class)
+                .log();
+    }
+
+    public Flux<Payable> getPayablesForFieldId(int fieldId) {
+        return webClient.get().uri(payableServiceUrl + "/payable/field/" + fieldId)
+                .retrieve()
+                .bodyToFlux(Payable.class)
+                .switchIfEmpty(Flux.empty())
+                .log();
+    }
+
+    public Flux<Receivable> getReceivablesForFieldId(int fieldId) {
+        return webClient.get().uri(receivableServiceUrl + "/receivable/field/" + fieldId)
+                .retrieve()
+                .bodyToFlux(Receivable.class)
+                .switchIfEmpty(Flux.empty())
+                .log();
+    }
+
+    public Mono<Field> getFieldForId(int fieldId) {
+        return webClient.get().uri(fieldServiceUrl + "/field/" + fieldId)
+                .retrieve()
+                .bodyToMono(Field.class)
+                .switchIfEmpty(Mono.empty())
+                .log();
     }
 }
