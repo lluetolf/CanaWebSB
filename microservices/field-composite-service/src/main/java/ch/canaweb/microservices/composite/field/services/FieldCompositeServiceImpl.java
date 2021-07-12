@@ -2,18 +2,12 @@ package ch.canaweb.microservices.composite.field.services;
 
 import ch.canaweb.api.composite.field.CompositeField;
 import ch.canaweb.api.composite.field.MicroServiceStatus;
-import ch.canaweb.api.core.composite.field.FieldCompositeService;
+import ch.canaweb.api.composite.field.FieldCompositeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RestController
 public class FieldCompositeServiceImpl implements FieldCompositeService {
