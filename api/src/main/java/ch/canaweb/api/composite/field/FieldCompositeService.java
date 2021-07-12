@@ -1,4 +1,4 @@
-package ch.canaweb.api.core.composite.field;
+package ch.canaweb.api.composite.field;
 
 import ch.canaweb.api.composite.field.CompositeField;
 import ch.canaweb.api.composite.field.MicroServiceStatus;
