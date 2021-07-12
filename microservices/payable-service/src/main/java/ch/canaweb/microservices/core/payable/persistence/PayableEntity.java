@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Document(collection="payables")
@@ -16,7 +16,7 @@ public class PayableEntity extends Payable {
     @Version
     private Integer version;
 
-    public PayableEntity(int payableId, Date transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, Date lastUpdated) {
+    public PayableEntity(int payableId, LocalDate transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, LocalDate lastUpdated) {
         super(payableId, transactionDate, pricePerUnit, quantity, documentId, fieldId, category, subCategory, comment, lastUpdated);
     }
 

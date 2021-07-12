@@ -50,18 +50,18 @@ class PayableServiceApplicationTests {
         assertCount(0);
 
         repository.insert(Arrays.asList(
-                new PayableEntity(1, DateUtils.addDays(new Date(), -1), 1.0, 1.0, 1, 1, "Category-1", "SubCategory-1", "Comment-1", new Date()),
-                new PayableEntity(2, DateUtils.addDays(new Date(), -2), 2.0, 2.0, 2, 2, "Category-2", "SubCategory-2", "Comment-2", new Date()),
-                new PayableEntity(3, DateUtils.addDays(new Date(), -3), 3.0, 3.0, 3, 3, "Category-3", "SubCategory-3", "Comment-3", new Date()),
-                new PayableEntity(4, DateUtils.addDays(new Date(), -4), 4.0, 4.0, 4, 4, "Category-4", "SubCategory-4", "Comment-4", new Date()),
-                new PayableEntity(5, DateUtils.addDays(new Date(), -5), 5.0, 5.0, 5, 5, "Category-5", "SubCategory-5", "Comment-5", new Date()),
-                new PayableEntity(6, DateUtils.addDays(new Date(), -6), 6.0, 6.0, 6, 6, "Category-6", "SubCategory-6", "Comment-6", new Date()),
-                new PayableEntity(7, DateUtils.addDays(new Date(), -7), 7.0, 7.0, 7, 44, "Category-7", "SubCategory-7", "Comment-7", new Date()),
-                new PayableEntity(8, DateUtils.addDays(new Date(), -8), 8.0, 8.0, 8, 44, "Category-8", "SubCategory-8", "Comment-8", new Date()),
-                new PayableEntity(9, DateUtils.addDays(new Date(), -9), 9.0, 9.0, 9, 44, "Category-9", "SubCategory-9", "Comment-9", new Date()),
-                new PayableEntity(10, DateUtils.addDays(new Date(), -10), 10.0, 10.0, 10, 10, "Category-10", "SubCategory-10", "Comment-10", new Date()),
-                new PayableEntity(11, DateUtils.addDays(new Date(), -11), 11.0, 11.0, 11, 11, "Category-11", "SubCategory-11", "Comment-11", new Date()),
-                new PayableEntity(12, DateUtils.addDays(new Date(), -12), 12.0, 12.0, 12, 12, "Category-12", "SubCategory-12", "Comment-12", new Date())
+                new PayableEntity(1, LocalDate.now().minusDays(1), 1.0, 1.0, 1, 1, "Category-1", "SubCategory-1", "Comment-1", LocalDate.now()),
+                new PayableEntity(2, LocalDate.now().minusDays(2), 2.0, 2.0, 2, 2, "Category-2", "SubCategory-2", "Comment-2", LocalDate.now()),
+                new PayableEntity(3, LocalDate.now().minusDays(3), 3.0, 3.0, 3, 3, "Category-3", "SubCategory-3", "Comment-3", LocalDate.now()),
+                new PayableEntity(4, LocalDate.now().minusDays(4), 4.0, 4.0, 4, 4, "Category-4", "SubCategory-4", "Comment-4", LocalDate.now()),
+                new PayableEntity(5, LocalDate.now().minusDays(5), 5.0, 5.0, 5, 5, "Category-5", "SubCategory-5", "Comment-5", LocalDate.now()),
+                new PayableEntity(6, LocalDate.now().minusDays(6), 6.0, 6.0, 6, 6, "Category-6", "SubCategory-6", "Comment-6", LocalDate.now()),
+                new PayableEntity(7, LocalDate.now().minusDays(7), 7.0, 7.0, 7, 44, "Category-7", "SubCategory-7", "Comment-7", LocalDate.now()),
+                new PayableEntity(8, LocalDate.now().minusDays(8), 8.0, 8.0, 8, 44, "Category-8", "SubCategory-8", "Comment-8", LocalDate.now()),
+                new PayableEntity(9, LocalDate.now().minusDays(9), 9.0, 9.0, 9, 44, "Category-9", "SubCategory-9", "Comment-9", LocalDate.now()),
+                new PayableEntity(10, LocalDate.now().minusDays(10), 10.0, 10.0, 10, 10, "Category-10", "SubCategory-10", "Comment-10", LocalDate.now()),
+                new PayableEntity(11, LocalDate.now().minusDays(11), 11.0, 11.0, 11, 11, "Category-11", "SubCategory-11", "Comment-11", LocalDate.now()),
+                new PayableEntity(12, LocalDate.now().minusDays(12), 12.0, 12.0, 12, 12, "Category-12", "SubCategory-12", "Comment-12", LocalDate.now())
         )).blockLast();
         assertCount(12);
     }
@@ -91,6 +91,8 @@ class PayableServiceApplicationTests {
 
         String str = new String(a.getResponseBody());
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         List<Payable> payables = Arrays.asList(objectMapper.readValue(str, Payable[].class));
         assertEquals(12, payables.size());
     }
@@ -121,7 +123,7 @@ class PayableServiceApplicationTests {
 
     @Test
     public void createPayable() {
-        Payable newPayable = new Payable(77, new Date(), 1.0, 1.0, 1, 1, "Category-1", "SubCategory-1", "Comment-1", new Date());
+        Payable newPayable = new Payable(77, LocalDate.now(), 1.0, 1.0, 1, 1, "Category-1", "SubCategory-1", "Comment-1", LocalDate.now());
 
         client.post()
                 .uri("/payable")
@@ -140,7 +142,7 @@ class PayableServiceApplicationTests {
         int payableId = 10;
 
         PayableEntity oldPayable = repository.findByPayableId(payableId).block();
-        Payable updatedPayable = new Payable(payableId, DateUtils.addDays(new Date(), 1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", DateUtils.addDays(new Date(), 1000));
+        Payable updatedPayable = new Payable(payableId, LocalDate.now().plusDays(1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", LocalDate.now().plusDays(1000));
 
         client.put()
                 .uri("/payable")
@@ -171,7 +173,7 @@ class PayableServiceApplicationTests {
     public void updatePayableNonExistent() {
         int payableId = 999;
 
-        Payable updatedPayable = new Payable(payableId, DateUtils.addDays(new Date(), 1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", DateUtils.addDays(new Date(), 1000));
+        Payable updatedPayable = new Payable(payableId, LocalDate.now().plusDays(1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", LocalDate.now().plusDays(1000));
 
         client.put()
                 .uri("/payable")
@@ -201,8 +203,8 @@ class PayableServiceApplicationTests {
 
     @Test
     public void getAllPayablesBetween() throws JsonProcessingException {
-        LocalDate from = LocalDate.now().minusDays(3);
-        LocalDate to = LocalDate.now();
+        LocalDate from = LocalDate.now().minusDays(7);
+        LocalDate to = LocalDate.now().minusDays(3);
         String uri = "/between?from=" + DateTimeFormatter.ISO_LOCAL_DATE.format(from)  + "&to=" +  DateTimeFormatter.ISO_LOCAL_DATE.format(to);
         WebTestClient.BodyContentSpec r = getAndVerifyPayable(uri, HttpStatus.OK);
 
@@ -215,6 +217,8 @@ class PayableServiceApplicationTests {
 
         String str = new String(a.getResponseBody());
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         List<Payable> payables = Arrays.asList(objectMapper.readValue(str, Payable[].class));
         assertEquals(3, payables.size());
 

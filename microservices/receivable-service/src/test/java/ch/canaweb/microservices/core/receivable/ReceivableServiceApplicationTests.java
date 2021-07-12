@@ -1,8 +1,6 @@
 package ch.canaweb.microservices.core.receivable;
 
 import ch.canaweb.api.core.Receivable.Receivable;
-import ch.canaweb.api.core.Receivable.Receivable;
-import ch.canaweb.api.core.Receivable.Receivable;
 import ch.canaweb.microservices.core.receivable.persistence.ReceivableEntity;
 import ch.canaweb.microservices.core.receivable.persistence.ReceivableRepository;
 import ch.canaweb.microservices.core.receivable.services.ReceivableMapper;
@@ -10,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +20,10 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
