@@ -1,10 +1,10 @@
 package ch.canaweb.api.core.Payable;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Payable {
     private int payableId;
-    private Date transactionDate;
+    private LocalDate transactionDate;
     private double pricePerUnit;
     private double quantity;
     private int documentId;
@@ -12,12 +12,12 @@ public class Payable {
     private String category;
     private String subCategory;
     private String comment;
-    private Date lastUpdated;
+    private LocalDate lastUpdated;
 
     public Payable() {
     }
 
-    public Payable(int payableId, Date transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, Date lastUpdated) {
+    public Payable(int payableId, LocalDate transactionDate, double pricePerUnit, double quantity, int documentId, int fieldId, String category, String subCategory, String comment, LocalDate lastUpdated) {
         this.payableId = payableId;
         this.transactionDate = transactionDate;
         this.pricePerUnit = pricePerUnit;
@@ -34,15 +34,15 @@ public class Payable {
         return payableId;
     }
 
-    public Date getLastUpdated() {
+    public LocalDate getLastUpdated() {
         return lastUpdated;
     }
 
-    public Date getTransactionDate() {
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
 
-    public void setTransactionDate(Date transactionDate) {
+    public void setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
     }
 
@@ -106,7 +106,7 @@ public class Payable {
         this.payableId = payableId;
     }
 
-    public void setLastUpdated(Date lastUpdated) {
+    public void setLastUpdated(LocalDate lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 }
