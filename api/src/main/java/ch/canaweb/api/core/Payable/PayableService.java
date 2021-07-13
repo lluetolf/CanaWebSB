@@ -1,6 +1,5 @@
 package ch.canaweb.api.core.Payable;
 
-import ch.canaweb.api.core.Field.Field;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

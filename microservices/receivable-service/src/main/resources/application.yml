@@ -13,19 +13,15 @@ logging:
     ch.canaweb: DEBUG
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
-canaweb_env: "DEV"
-
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
-canaweb_env: "DOCKER"
 
 spring.data.mongodb.host: mongodb
 
 ---
 spring.config.activate.on-profile: prod
-canaweb_env: "PROD"
 
