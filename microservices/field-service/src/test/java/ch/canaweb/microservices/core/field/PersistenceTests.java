@@ -9,7 +9,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 import ch.canaweb.microservices.core.field.persistence.FieldEntity;
 import ch.canaweb.microservices.core.field.persistence.FieldRepository;

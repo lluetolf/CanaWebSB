@@ -1,6 +1,5 @@
 package ch.canaweb.microservices.composite.field.services;
 
-import ch.canaweb.api.composite.field.CompositeField;
 import ch.canaweb.api.composite.field.MicroServiceStatus;
 import ch.canaweb.api.core.Field.Field;
 import ch.canaweb.api.core.Payable.Payable;
@@ -22,7 +21,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.List;
 
 
 @Component
@@ -86,7 +84,7 @@ public class FieldCompositeIntegration {
                     if (s.contains("UP"))
                         return Mono.just("UP");
                     else
-                        return Mono.just("UP");
+                        return Mono.just("DOWN");
                 })
                 .onErrorMap(WebClientResponseException.class, this::handleException);
     }

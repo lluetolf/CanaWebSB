@@ -23,7 +23,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,7 +82,7 @@ class FieldCompositeServiceApplicationTests {
                 );
         when(compositeIntegration.getPayablesForFieldId(3)).
                 thenReturn(
-                        Flux.fromIterable(Arrays.asList(
+                        Flux.fromIterable(List.of(
                                 new Payable(8, LocalDate.now().minusDays(8), 8.0, 8.0, 8, 3, "Category-8", "SubCategory-8", "Comment-8", LocalDate.now())
                                 )
                         )
@@ -108,7 +107,7 @@ class FieldCompositeServiceApplicationTests {
                 );
         when(compositeIntegration.getReceivablesForFieldId(3)).
                 thenReturn(
-                        Flux.fromIterable(Arrays.asList(
+                        Flux.fromIterable(List.of(
                                 new Receivable(3, "2020/2023", LocalDate.now(), "document-3", 3, LocalDate.now())
                                 )
                         )
@@ -171,7 +170,7 @@ class FieldCompositeServiceApplicationTests {
     }
 
     @Test
-    public void testGetCompositeFieldNonExistent() throws JsonProcessingException {
+    public void testGetCompositeFieldNonExistent() {
         client.get().uri("/field-composite/88")
                 .accept(APPLICATION_JSON)
                 .exchange()
