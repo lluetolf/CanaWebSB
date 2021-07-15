@@ -20,6 +20,12 @@ public interface ReceivableService {
     @ResponseStatus(HttpStatus.OK)
     Flux<Receivable> getReceivableForField(@PathVariable int fieldId);
 
+    @DeleteMapping(
+            value    = "/receivable/field/{fieldId}",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<Void> deleteReceivableForField(@PathVariable int fieldId);
+
     @GetMapping(
             value    = "/receivable",
             produces = "application/json")

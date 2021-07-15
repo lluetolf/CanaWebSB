@@ -13,4 +13,6 @@ public interface ReceivableRepository extends ReactiveMongoRepository<Receivable
     Flux<ReceivableEntity> findAll();
 
     Mono<Void> deleteByReceivableId(int receivableId);
+
+    Mono<Void> deleteAllByFieldId(int fieldId);
 }

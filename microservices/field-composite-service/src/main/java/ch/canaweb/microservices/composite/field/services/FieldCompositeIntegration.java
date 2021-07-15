@@ -1,5 +1,6 @@
 package ch.canaweb.microservices.composite.field.services;
 
+import ch.canaweb.api.composite.field.CompositeField;
 import ch.canaweb.api.composite.field.MicroServiceStatus;
 import ch.canaweb.api.core.Field.Field;
 import ch.canaweb.api.core.Payable.Payable;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Component
@@ -56,9 +60,9 @@ public class FieldCompositeIntegration {
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        this.fieldServiceUrl = "http://" + fieldServiceHost + ":" + fieldServicePort;
-        this.payableServiceUrl = "http://" + payableServiceHost + ":" + payableServicePort;
-        this.receivableServiceUrl = "http://" + receivableServiceHost + ":" + receivableServicePort;
+        this.fieldServiceUrl = "http://" + fieldServiceHost + ":" + fieldServicePort  + "/field/";
+        this.payableServiceUrl = "http://" + payableServiceHost + ":" + payableServicePort + "/payable/";
+        this.receivableServiceUrl = "http://" + receivableServiceHost + ":" + receivableServicePort + "/receivable/";
 
         checkUpStreamServices();
     }
@@ -70,10 +74,129 @@ public class FieldCompositeIntegration {
         checkServiceHeartBeat(receivableServiceUrl);
     }
 
-    public Mono<String> checkServiceHeartBeat(String serviceUrl) {
+    public List<Field> getAllFields() {
+        return webClient.get().uri(fieldServiceUrl)
+                .retrieve()
+                .bodyToFlux(Field.class)
+                .log()
+                .collectList()
+                .block();
+    }
+
+    public List<Payable> getAllPayables() {
+        return webClient.get().uri(payableServiceUrl)
+                .retrieve()
+                .bodyToFlux(Payable.class)
+                .log()
+                .collectList()
+                .block();
+    }
+
+    public List<Receivable> getAllReceivables() {
+        return webClient.get().uri(receivableServiceUrl)
+                .retrieve()
+                .bodyToFlux(Receivable.class)
+                .log()
+                .collectList()
+                .block();
+    }
+
+
+    public List<Payable> getPayablesForFieldId(int fieldId) {
+        return webClient.get().uri(receivableServiceUrl + "field/" + fieldId)
+                .retrieve()
+                .bodyToFlux(Payable.class)
+                .switchIfEmpty(Flux.empty())
+                .log()
+                .collectList().block();
+    }
+
+    public List<Receivable> getReceivablesForFieldId(int fieldId) {
+        return webClient.get().uri(receivableServiceUrl + "field/" + fieldId)
+                .retrieve()
+                .bodyToFlux(Receivable.class)
+                .switchIfEmpty(Flux.empty())
+                .log()
+                .collectList()
+                .block();
+    }
+
+    public Field getFieldForId(int fieldId) {
+        return webClient.get().uri(fieldServiceUrl  + fieldId)
+                .retrieve()
+                .bodyToMono(Field.class)
+                .switchIfEmpty(Mono.empty())
+                .onErrorMap( ex -> handleException(ex))
+                .log()
+                .block();
+    }
+
+    public Field createField(Field field) {
+        LOG.info("Create Field with id: " + field);
+        return webClient.post().uri(fieldServiceUrl)
+                .body(Mono.just(field), Field.class)
+                .retrieve()
+                .bodyToMono(Field.class)
+                .switchIfEmpty(Mono.empty())
+                .onErrorMap( ex -> handleException(ex))
+                .log()
+                .block();
+    }
+
+    public List<Payable> createPayables(List<Payable> payables) {
+        LOG.info("Create payables number: " + payables.size());
+
+        List<Payable> returnedPayables = new ArrayList<Payable>();
+        for (Payable p : payables) {
+            returnedPayables.add(
+                    webClient.post().uri(payableServiceUrl)
+                    .body(Mono.just(p), Payable.class)
+                    .retrieve()
+                    .bodyToMono(Payable.class)
+                    .switchIfEmpty(Mono.empty())
+                    .onErrorMap( ex -> handleException(ex))
+                    .log()
+                    .block());
+        }
+        return returnedPayables;
+    }
+
+    public List<Receivable> createReceivables(List<Receivable> receivables) {
+        LOG.info("Create receivables number: " + receivables.size());
+
+        List<Receivable> returnedReceivables = new ArrayList<Receivable>();
+        for (Receivable p : receivables) {
+            returnedReceivables.add(
+                    webClient.post().uri(receivableServiceUrl)
+                            .body(Mono.just(p), Receivable.class)
+                            .retrieve()
+                            .bodyToMono(Receivable.class)
+                            .switchIfEmpty(Mono.empty())
+                            .onErrorMap( ex -> handleException(ex))
+                            .log()
+                            .block());
+        }
+        return returnedReceivables;
+    }
+
+    public MicroServiceStatus getAllUpstreamStatus() {
+        return Mono.zip(
+                values -> new MicroServiceStatus((String) values[0], (String) values[1], (String) values[2]),
+                checkServiceHeartBeat(fieldServiceUrl),
+                checkServiceHeartBeat(payableServiceUrl),
+                checkServiceHeartBeat(receivableServiceUrl))
+                .map(x -> {
+                    LOG.info(x.toString());
+                    return x;
+                })
+                .doOnError(ex -> LOG.warn("getAllUpstreamStatus failed: {}", ex.toString()))
+                .log()
+                .block();
+    }
+
+    private Mono<String> checkServiceHeartBeat(String serviceUrl) {
         String uri = "/actuator/health/ping";
         String url = serviceUrl + uri;
-        LOG.info("\tHit: " + url);
 
         return webClient.get()
                 .uri(url)
@@ -87,20 +210,6 @@ public class FieldCompositeIntegration {
                         return Mono.just("DOWN");
                 })
                 .onErrorMap(WebClientResponseException.class, this::handleException);
-    }
-
-    public Mono<MicroServiceStatus> getAllUpstreamStatus() {
-        return Mono.zip(
-                values -> new MicroServiceStatus((String) values[0], (String) values[1], (String) values[2]),
-                checkServiceHeartBeat(fieldServiceUrl),
-                checkServiceHeartBeat(payableServiceUrl),
-                checkServiceHeartBeat(receivableServiceUrl))
-                .map(x -> {
-                    LOG.info(x.toString());
-                    return x;
-                })
-                .doOnError(ex -> LOG.warn("getAllUpstreamStatus failed: {}", ex.toString()))
-                .log();
     }
 
     private static ExchangeFilterFunction logRequest() {
@@ -143,34 +252,23 @@ public class FieldCompositeIntegration {
         }
     }
 
-    public Flux<Field> getAllFields() {
-        return webClient.get().uri(fieldServiceUrl + "/field")
+    public void deleteFieldById(int fieldId) {
+        webClient.delete().uri(fieldServiceUrl + fieldId)
                 .retrieve()
-                .bodyToFlux(Field.class)
-                .log();
-    }
+                .bodyToMono(Void.class)
+                .onErrorMap(ex -> handleException(ex))
+                .block();
 
-    public Flux<Payable> getPayablesForFieldId(int fieldId) {
-        return webClient.get().uri(payableServiceUrl + "/payable/field/" + fieldId)
+        webClient.delete().uri(payableServiceUrl + "field/" + fieldId )
                 .retrieve()
-                .bodyToFlux(Payable.class)
-                .switchIfEmpty(Flux.empty())
-                .log();
-    }
+                .bodyToMono(Void.class)
+                .onErrorMap(ex -> handleException(ex))
+                .block();
 
-    public Flux<Receivable> getReceivablesForFieldId(int fieldId) {
-        return webClient.get().uri(receivableServiceUrl + "/receivable/field/" + fieldId)
+        webClient.delete().uri(receivableServiceUrl + "field/" + fieldId )
                 .retrieve()
-                .bodyToFlux(Receivable.class)
-                .switchIfEmpty(Flux.empty())
-                .log();
-    }
-
-    public Mono<Field> getFieldForId(int fieldId) {
-        return webClient.get().uri(fieldServiceUrl + "/field/" + fieldId)
-                .retrieve()
-                .bodyToMono(Field.class)
-                .switchIfEmpty(Mono.empty())
-                .log();
+                .bodyToMono(Void.class)
+                .onErrorMap(ex -> handleException(ex))
+                .block();
     }
 }

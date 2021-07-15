@@ -6,15 +6,14 @@ import ch.canaweb.api.composite.field.MicroServiceStatus;
 import ch.canaweb.api.core.Field.Field;
 import ch.canaweb.api.core.Payable.Payable;
 import ch.canaweb.api.core.Receivable.Receivable;
-import ch.canaweb.util.exception.DataNotFoundException;
 import ch.canaweb.util.exception.InvalidInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class FieldCompositeServiceImpl implements FieldCompositeService {
@@ -28,67 +27,93 @@ public class FieldCompositeServiceImpl implements FieldCompositeService {
     }
 
     @Override
-    public Flux<Field> getAllFields() {
+    public List<Field> getAllFields() {
         LOG.info("Get All Fields.");
         return integration.getAllFields();
     }
 
     @Override
-    public Mono<CompositeField> getCompositeField(int fieldId) {
+    public List<Payable> getAllPayables() {
+        LOG.info("Get All Payables.");
+        return integration.getAllPayables();
+    }
+
+    @Override
+    public List<Receivable> getAllReceivables() {
+        LOG.info("Get All Receivable.");
+        return integration.getAllReceivables();
+    }
+
+    @Override
+    public CompositeField getCompositeFieldByFieldId(int fieldId) {
         LOG.info("Get CompositeField with FieldID " + fieldId);
-        return Mono.zip(
-                values -> new CompositeField((Field) values[0], (List<Payable>) values[1], (List<Receivable>) values[2]),
-                integration.getFieldForId(fieldId),
-                integration.getPayablesForFieldId(fieldId).collectList(),
-                integration.getReceivablesForFieldId(fieldId).collectList())
-                .doOnError(ex -> LOG.warn("getCompositeField failed: {}", ex.toString()))
-                .switchIfEmpty(Mono.error(new DataNotFoundException("No CompositeField with for id: " + fieldId)))
-                .log();
+
+        Field field = integration.getFieldForId(fieldId);
+        List<Payable> payables = integration.getPayablesForFieldId(fieldId);
+        List<Receivable> receivables = integration.getReceivablesForFieldId(fieldId);
+
+        return new CompositeField(field, payables, receivables);
     }
 
     @Override
-    public Flux<CompositeField> getCompositeFields() {
+    public List<CompositeField> getCompositeFields() {
         LOG.info("Get All CompositeFields.");
-        Flux<Field> fields = integration.getAllFields();
+        List<Field> fields = integration.getAllFields();
 
-        return fields.flatMap( f->
-                Flux.zip(
-                        integration.getPayablesForFieldId(f.getFieldId()).collectList(),
-                        integration.getReceivablesForFieldId(f.getFieldId()).collectList(),
-                        (p,r) -> new CompositeField(f, p ,r)
-                ))
-                .doOnError(ex -> LOG.warn("getCompositeField failed: {}", ex.toString()))
-                .log();
+        List<CompositeField> compositeFields = new ArrayList<>();
+        fields.forEach( f ->
+                compositeFields.add(
+                        new CompositeField(
+                             f,
+                             integration.getPayablesForFieldId(f.getFieldId()),
+                             integration.getReceivablesForFieldId(f.getFieldId())
+                        )
+                )
+        );
+        return compositeFields;
     }
 
     @Override
-    public Mono<Void> updateCompositeField() {
+    public CompositeField updateCompositeField() {
         return null;
     }
 
     @Override
     public CompositeField createCompositeField(CompositeField body) {
+        LOG.info("Create new CompositeField with id: " + body.getField());
         if(body == null) {
             LOG.warn("Tried create CompositeField with no content.");
             throw new InvalidInputException("Body empty");
         }
+
         Field field = body.getField();
         List<Payable> payables = body.getPayables();
         List<Receivable> receivables = body.getReceivables();
 
-//        integration.createField(field);
-        return null;
+        if(! payables.stream().filter(p -> p.getFieldId() != field.getFieldId()).collect(Collectors.toList()).isEmpty() ||
+               ! receivables.stream().filter(p -> p.getFieldId() != field.getFieldId()).collect(Collectors.toList()).isEmpty() ) {
+            throw new InvalidInputException("Invalid payable or receivables.");
+        }
+        // Try to create field
+        Field createdField = integration.createField(field);
+        List<Payable> createdPayables = integration.createPayables(payables);
+        List<Receivable> createdReceivables = integration.createReceivables(receivables);
+
+        return new CompositeField(createdField, createdPayables, createdReceivables);
+    }
+
+
+    @Override
+    public void deleteField(int fieldId) {
+        LOG.info("Delete composite-field with fieldId: " + fieldId);
+        integration.deleteFieldById(fieldId);
     }
 
     @Override
-    public Mono<MicroServiceStatus> getUpstreamMicroServicesStatus() {
+    public MicroServiceStatus getUpstreamMicroServicesStatus() {
         LOG.info("Get upstream microservices status.");
         return integration.getAllUpstreamStatus();
     }
 
-    @Override
-    public Mono<Void> deleteField(int fieldId) {
-        return null;
-    }
 
 }

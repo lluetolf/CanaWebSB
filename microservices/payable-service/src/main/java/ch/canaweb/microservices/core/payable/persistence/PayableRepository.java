@@ -14,7 +14,9 @@ public interface PayableRepository extends ReactiveMongoRepository<PayableEntity
 
     Flux<PayableEntity> findAll();
 
-    Mono<Void> deleteByPayableId(int fieldId);
+    Mono<Void> deleteByPayableId(int payableId);
+
+    Mono<Void> deleteAllByFieldId(int fieldId);
 
     Flux<PayableEntity> findByTransactionDateBetween(LocalDate from, LocalDate to);
 }
