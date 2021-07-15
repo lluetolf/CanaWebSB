@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class PayableServiceImpl implements PayableService {
@@ -51,6 +53,13 @@ public class PayableServiceImpl implements PayableService {
     }
 
     @Override
+    public Mono<Void> deleteAllPayablesForField(int fieldId) {
+        LOG.info("Delete Payables with fieldId: " + fieldId);
+        return repository.deleteAllByFieldId(fieldId)
+                .log();
+    }
+
+    @Override
     public Flux<Payable> getAllPayables() {
         LOG.info("Fetch all Payables.");
         return repository.findAll()
@@ -77,6 +86,21 @@ public class PayableServiceImpl implements PayableService {
                         ex -> {
                             LOG.error(ex.getMessage());
                             return new DupliateException("Duplicate key, FieldId: " + body.getFieldId());
+                        }
+                )
+                .map(mapper::entityToApi)
+                .log();
+    }
+
+    public Flux<Payable> createPayables(List<Payable> payables) {
+        LOG.info("Create new Payables: " + payables.size());
+
+        return repository.insert(payables.stream().map(mapper::apiToEntity).collect(Collectors.toList()))
+                .onErrorMap(
+                        DuplicateKeyException.class,
+                        ex -> {
+                            LOG.error(ex.getMessage());
+                            return new DupliateException("Duplicate key, FieldId: " + ex.getMessage());
                         }
                 )
                 .map(mapper::entityToApi)

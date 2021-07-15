@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface PayableService {
 
@@ -21,6 +22,12 @@ public interface PayableService {
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     Flux<Payable> getAllPayablesForField(@PathVariable int fieldId);
+
+    @DeleteMapping(
+            value    = "/payable/field/{fieldId}",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<Void> deleteAllPayablesForField(@PathVariable int fieldId);
 
     @GetMapping(
             value    = "/payable",
@@ -42,6 +49,13 @@ public interface PayableService {
             produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     Mono<Payable> createPayable(@RequestBody Payable body);
+
+    @PostMapping(
+            path = "/payables",
+            consumes = "application/json",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    Flux<Payable> createPayables(List<Payable> payables);
 
     @PutMapping(
             path = "/payable",

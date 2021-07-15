@@ -48,6 +48,13 @@ public class ReceivableServiceImpl implements ReceivableService {
     }
 
     @Override
+    public Mono<Void> deleteReceivableForField(int fieldId) {
+        LOG.info("Update Receivable with fieldId: " + fieldId);
+        return repository.deleteAllByFieldId(fieldId)
+                .log();
+    }
+
+    @Override
     public Flux<Receivable> getAllReceivables() {
         LOG.info("Fetch all Receivables");
         return repository.findAll()

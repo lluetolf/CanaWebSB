@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -132,6 +134,27 @@ class PayableServiceApplicationTests {
                 .returnResult(Payable.class);
 
         assertCount(13);
+    }
+
+    @Test
+    public void createPayables() {
+        List<Payable> newPayables = List.of(
+                new Payable(77, LocalDate.now(), 1.0, 1.0, 1, 1, "Category-1", "SubCategory-1", "Comment-1", LocalDate.now()),
+                new Payable(88, LocalDate.now(), 2.0, 2.0, 2, 2, "Category-2", "SubCategory-2", "Comment-2", LocalDate.now()));
+
+        Flux.fromIterable(newPayables)
+                .map(
+                        p ->
+                                client.post()
+                                        .uri("/payable")
+                                        .body(Mono.just(p), Payable.class )
+                                        .exchange()
+                                        .expectStatus().isEqualTo(HttpStatus.CREATED)
+                                        .returnResult(Payable.class)
+                ).subscribe();
+
+
+        assertCount(14);
     }
 
     //TODO: add duplicateerror
