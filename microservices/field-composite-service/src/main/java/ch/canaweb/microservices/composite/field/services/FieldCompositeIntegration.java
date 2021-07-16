@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import java.util.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,7 +104,8 @@ public class FieldCompositeIntegration {
 
 
     public List<Payable> getPayablesForFieldId(int fieldId) {
-        return webClient.get().uri(receivableServiceUrl + "field/" + fieldId)
+        LOG.info("Call Payables MS:");
+        return webClient.get().uri(payableServiceUrl + "field/" + fieldId)
                 .retrieve()
                 .bodyToFlux(Payable.class)
                 .switchIfEmpty(Flux.empty())
@@ -112,6 +114,7 @@ public class FieldCompositeIntegration {
     }
 
     public List<Receivable> getReceivablesForFieldId(int fieldId) {
+        LOG.info("Call Receivable MS:");
         return webClient.get().uri(receivableServiceUrl + "field/" + fieldId)
                 .retrieve()
                 .bodyToFlux(Receivable.class)
@@ -122,6 +125,7 @@ public class FieldCompositeIntegration {
     }
 
     public Field getFieldForId(int fieldId) {
+        LOG.info("Call Field MS:");
         return webClient.get().uri(fieldServiceUrl  + fieldId)
                 .retrieve()
                 .bodyToMono(Field.class)
@@ -270,5 +274,128 @@ public class FieldCompositeIntegration {
                 .bodyToMono(Void.class)
                 .onErrorMap(ex -> handleException(ex))
                 .block();
+    }
+
+    public CompositeField updateCompositeField(CompositeField cp) {
+        int fieldId = cp.getField().getFieldId();
+        Field field = getFieldForId(fieldId);
+        List<Payable> payables = getPayablesForFieldId(fieldId);
+        List<Receivable> receivables = getReceivablesForFieldId(fieldId);
+
+        CompositeField returnValue = new CompositeField(null, new ArrayList<Payable>(), new ArrayList<Receivable>());
+
+        if (!field.equals(cp.getField())) {
+            returnValue.setField(
+                    webClient.patch()
+                            .uri(fieldServiceUrl)
+                            .body(Mono.just(cp.getField()), Field.class)
+                            .retrieve()
+                            .bodyToMono(Field.class)
+                            .log()
+                            .onErrorMap(ex -> handleException(ex))
+                            .block()
+            );
+        }
+
+        for (Payable updatedPayable : cp.getPayables()) {
+            Optional<Payable> presentValue = payables.stream().filter(p -> updatedPayable.getPayableId() == p.getPayableId()).findFirst();
+            if(! presentValue.isPresent()) {
+                LOG.info("Create Payable with payableId: " + updatedPayable.getPayableId());
+                // create new payable
+                returnValue.getPayables().add(
+                        webClient.post()
+                                .uri(payableServiceUrl)
+                                .body(Mono.just(updatedPayable), Payable.class)
+                                .retrieve()
+                                .bodyToMono(Payable.class)
+                                .log()
+                                .onErrorMap(ex -> handleException(ex))
+                                .block()
+                );
+            } else {
+                // remove item from list
+                payables.remove(presentValue.get());
+
+                // Check if values have changed and update if needed.
+                if(! presentValue.equals(updatedPayable)) {
+                    LOG.info("Update Payable with payableId: " + updatedPayable.getPayableId());
+                    returnValue.getPayables().add(
+                            webClient.patch()
+                                    .uri(payableServiceUrl)
+                                    .body(Mono.just(updatedPayable), Payable.class)
+                                    .retrieve()
+                                    .bodyToMono(Payable.class)
+                                    .log()
+                                    .onErrorMap(ex -> handleException(ex))
+                                    .block()
+                    );
+                } else {
+                    returnValue.getPayables().add(presentValue.get());
+                }
+            }
+        }
+
+        // Delete payables only in PV but not in FV.
+        for (Payable payableToDelete : payables) {
+            LOG.info("Delete Payable with payableId: " + payableToDelete.getPayableId());
+            webClient.delete()
+                    .uri(payableServiceUrl + payableToDelete.getPayableId())
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorMap(ex -> handleException(ex))
+                    .block();
+        }
+
+
+        for (Receivable updatedReceivable : cp.getReceivables()) {
+            Optional<Receivable> presentValue = receivables.stream().filter(p -> updatedReceivable.getReceivableId() == p.getReceivableId()).findFirst();
+            if(! presentValue.isPresent()) {
+                LOG.info("Create Receivable with receivableId: " + updatedReceivable.getReceivableId());
+                // create new receivable
+                returnValue.getReceivables().add(
+                        webClient.post()
+                                .uri(receivableServiceUrl)
+                                .body(Mono.just(updatedReceivable), Receivable.class)
+                                .retrieve()
+                                .bodyToMono(Receivable.class)
+                                .log()
+                                .onErrorMap(ex -> handleException(ex))
+                                .block()
+                );
+            } else {
+                // remove item from list
+                receivables.remove(presentValue.get());
+
+                // Check if values have changed and update if needed.
+                if(! presentValue.equals(updatedReceivable)) {
+                    LOG.info("Update Receivable with receivableId: " + updatedReceivable.getReceivableId());
+                    returnValue.getReceivables().add(
+                            webClient.patch()
+                                    .uri(receivableServiceUrl)
+                                    .body(Mono.just(updatedReceivable), Receivable.class)
+                                    .retrieve()
+                                    .bodyToMono(Receivable.class)
+                                    .log()
+                                    .onErrorMap(ex -> handleException(ex))
+                                    .block()
+                    );
+                } else {
+                    returnValue.getReceivables().add(presentValue.get());
+                }
+            }
+        }
+
+        // Delete receivables only in PV but not in FV.
+        for (Receivable receivableToDelete : receivables) {
+            LOG.info("Delete Receivable with receivableId: " + receivableToDelete.getReceivableId());
+            webClient.delete()
+                    .uri(receivableServiceUrl + receivableToDelete.getReceivableId())
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorMap(ex -> handleException(ex))
+                    .block();
+        }
+        
+        return  returnValue;
     }
 }

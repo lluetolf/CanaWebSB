@@ -43,9 +43,10 @@ public interface FieldCompositeService {
 
     @PatchMapping(
             value ="/field-composite",
+            consumes = "application/json",
             produces = "application/json")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    CompositeField updateCompositeField();
+    @ResponseStatus(HttpStatus.OK)
+    CompositeField updateCompositeField(@RequestBody CompositeField body);
 
     @PostMapping(
             value ="/field-composite",

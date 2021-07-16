@@ -57,7 +57,7 @@ public interface PayableService {
     @ResponseStatus(HttpStatus.CREATED)
     Flux<Payable> createPayables(List<Payable> payables);
 
-    @PutMapping(
+    @PatchMapping(
             path = "/payable",
             consumes = "application/json",
             produces = "application/json")

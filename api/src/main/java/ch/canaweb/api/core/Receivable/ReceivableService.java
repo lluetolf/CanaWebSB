@@ -39,7 +39,7 @@ public interface ReceivableService {
     @ResponseStatus(HttpStatus.CREATED)
     Mono<Receivable> createReceivable(@RequestBody Receivable body);
 
-    @PutMapping(
+    @PatchMapping(
             path = "/receivable",
             consumes = "application/json",
             produces = "application/json")

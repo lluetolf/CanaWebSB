@@ -143,7 +143,7 @@ class ReceivableServiceApplicationTests {
         ReceivableEntity oldReceivable = repository.findByReceivableId(receivableId).block();
         Receivable updatedReceivable = new Receivable(receivableId, "555/555", LocalDate.now().minusDays(555), "updated-555", 888, LocalDate.now().minusDays(555));
 
-        client.put()
+        client.patch()
                 .uri("/receivable")
                 .body(Mono.just(updatedReceivable), Receivable.class)
                 .exchange()
@@ -170,7 +170,7 @@ class ReceivableServiceApplicationTests {
 
         Receivable updatedReceivable = new Receivable(receivableId, "555/555", LocalDate.now().minusDays(555), "updated-555", 888, LocalDate.now().minusDays(555));
 
-        client.put()
+        client.patch()
                 .uri("/receivable")
                 .body(Mono.just(updatedReceivable), Receivable.class)
                 .exchange()

@@ -74,13 +74,14 @@ public class FieldCompositeServiceImpl implements FieldCompositeService {
     }
 
     @Override
-    public CompositeField updateCompositeField() {
-        return null;
+    public CompositeField updateCompositeField(CompositeField body) {
+        LOG.info("Update CompositeField with id: " + body.getField().getFieldId());
+        return integration.updateCompositeField(body);
     }
 
     @Override
     public CompositeField createCompositeField(CompositeField body) {
-        LOG.info("Create new CompositeField with id: " + body.getField());
+        LOG.info("Create new CompositeField with id: " + body.getField().getFieldId());
         if(body == null) {
             LOG.warn("Tried create CompositeField with no content.");
             throw new InvalidInputException("Body empty");
