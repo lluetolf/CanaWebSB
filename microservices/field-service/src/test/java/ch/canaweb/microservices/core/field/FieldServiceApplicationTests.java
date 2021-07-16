@@ -143,7 +143,7 @@ class FieldServiceApplicationTests {
         FieldEntity oldPayable = repository.findByFieldId(fieldId).block();
         Field updatedField = new Field(fieldId, "updated_oinky_field", "updated_oinky_the_owner", 122.0, 188.8, LocalDate.now().minusDays(777), "updated_oinky-ingenio-id", LocalDate.now().minusDays(777));
 
-        client.put()
+        client.patch()
                 .uri("/field")
                 .body(Mono.just(updatedField), Field.class)
                 .exchange()
@@ -168,7 +168,7 @@ class FieldServiceApplicationTests {
 
         Field updatedField = new Field(fieldId, "oinky_field", "oinky_the_owner", 22.0, 88.8, LocalDate.now(), "oinky-ingenio-id", LocalDate.now());
 
-        client.put()
+        client.patch()
                 .uri("/field")
                 .body(Mono.just(updatedField), Field.class)
                 .exchange()

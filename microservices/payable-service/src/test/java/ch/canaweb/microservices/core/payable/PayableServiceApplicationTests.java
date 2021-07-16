@@ -166,7 +166,7 @@ class PayableServiceApplicationTests {
         PayableEntity oldPayable = repository.findByPayableId(payableId).block();
         Payable updatedPayable = new Payable(payableId, LocalDate.now().plusDays(1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", LocalDate.now().plusDays(1000));
 
-        client.put()
+        client.patch()
                 .uri("/payable")
                 .body(Mono.just(updatedPayable), Payable.class)
                 .exchange()
@@ -197,7 +197,7 @@ class PayableServiceApplicationTests {
 
         Payable updatedPayable = new Payable(payableId, LocalDate.now().plusDays(1000), 1000.0, 1000.0, 1000, 1000, "updated", "updated", "updated", LocalDate.now().plusDays(1000));
 
-        client.put()
+        client.patch()
                 .uri("/payable")
                 .body(Mono.just(updatedPayable), Payable.class)
                 .exchange()
