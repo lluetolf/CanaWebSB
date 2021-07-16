@@ -5,6 +5,13 @@ logging:
     root: INFO
     ch.canaweb: DEBUG
 
+api:
+
+  common:
+    version: 0.1
+    title: CanaWeb - GUI API
+    description: Exposes the endpoints required for CanaWeb GUI.
+
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
