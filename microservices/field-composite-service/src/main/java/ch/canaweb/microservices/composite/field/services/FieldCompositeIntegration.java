@@ -21,6 +21,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
 import java.util.Optional;
 
 import java.io.IOException;
@@ -38,6 +40,9 @@ public class FieldCompositeIntegration {
     private final String fieldServiceUrl;
     private final String payableServiceUrl;
     private final String receivableServiceUrl;
+    private final String fieldServiceBaseUrl;
+    private final String payableServiceBaseUrl;
+    private final String receivableServiceBaseUrl;
 
     public FieldCompositeIntegration(
             WebClient.Builder webClient,
@@ -61,18 +66,12 @@ public class FieldCompositeIntegration {
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        this.fieldServiceUrl = "http://" + fieldServiceHost + ":" + fieldServicePort  + "/field/";
-        this.payableServiceUrl = "http://" + payableServiceHost + ":" + payableServicePort + "/payable/";
-        this.receivableServiceUrl = "http://" + receivableServiceHost + ":" + receivableServicePort + "/receivable/";
-
-        checkUpStreamServices();
-    }
-
-    public void checkUpStreamServices() {
-        LOG.info("Upstream Services:");
-        checkServiceHeartBeat(fieldServiceUrl);
-        checkServiceHeartBeat(payableServiceUrl);
-        checkServiceHeartBeat(receivableServiceUrl);
+        this.fieldServiceBaseUrl = "http://" + fieldServiceHost + ":" + fieldServicePort;
+        this.fieldServiceUrl = this.fieldServiceBaseUrl + "/field/";
+        this.payableServiceBaseUrl = "http://" + payableServiceHost + ":" + payableServicePort;
+        this.payableServiceUrl = this.payableServiceBaseUrl + "/payable/";
+        this.receivableServiceBaseUrl = "http://" + receivableServiceHost + ":" + receivableServicePort;
+        this.receivableServiceUrl = this.receivableServiceBaseUrl + "/receivable/";
     }
 
     public List<Field> getAllFields() {
@@ -186,9 +185,9 @@ public class FieldCompositeIntegration {
     public MicroServiceStatus getAllUpstreamStatus() {
         return Mono.zip(
                 values -> new MicroServiceStatus((String) values[0], (String) values[1], (String) values[2]),
-                checkServiceHeartBeat(fieldServiceUrl),
-                checkServiceHeartBeat(payableServiceUrl),
-                checkServiceHeartBeat(receivableServiceUrl))
+                checkServiceHeartBeat(fieldServiceBaseUrl),
+                checkServiceHeartBeat(payableServiceBaseUrl ),
+                checkServiceHeartBeat(receivableServiceBaseUrl))
                 .map(x -> {
                     LOG.info(x.toString());
                     return x;
@@ -213,7 +212,7 @@ public class FieldCompositeIntegration {
                     else
                         return Mono.just("DOWN");
                 })
-                .onErrorMap(WebClientResponseException.class, this::handleException);
+                .onErrorReturn(Exception.class, "DOWN");
     }
 
     private static ExchangeFilterFunction logRequest() {
