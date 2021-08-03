@@ -2,25 +2,25 @@ package ch.canaweb.microservices.composite.field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-
-import static java.util.Collections.emptyList;
-import static org.springframework.web.bind.annotation.RequestMethod.*;
-import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
-import static springfox.documentation.spi.DocumentationType.SWAGGER_2;
-
+import org.springframework.web.reactive.function.client.WebClient;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
+
+import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
 
 @SpringBootApplication
 @ComponentScan("ch.canaweb")
@@ -35,7 +35,13 @@ public class FieldCompositeServiceApplication {
 
         ConfigurableApplicationContext ctx = SpringApplication.run(FieldCompositeServiceApplication.class, args);
 
-        LOG.info("Tripple Hello");
+    }
+
+    @Bean
+    @LoadBalanced
+    public WebClient.Builder loadBalancedWebClientBuilder() {
+        final WebClient.Builder builder = WebClient.builder();
+        return builder;
     }
 
     @Bean

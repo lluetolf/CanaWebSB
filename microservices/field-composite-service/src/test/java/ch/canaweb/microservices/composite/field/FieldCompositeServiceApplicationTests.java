@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"spring.data.mongodb.port: 0"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"spring.data.mongodb.port: 0", "eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
 @AutoConfigureWebTestClient
 class FieldCompositeServiceApplicationTests {
 
@@ -124,6 +124,7 @@ class FieldCompositeServiceApplicationTests {
 
     @Test
     public void getStatusOfWSs() {
+        System.out.println("test.");
         client.get().uri("/upstream-status")
                 .accept(APPLICATION_JSON)
                 .exchange()

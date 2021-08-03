@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.5.1'
+        springBootVersion = '2.5.3'
     }
     repositories {
         mavenCentral()
@@ -25,7 +25,7 @@ repositories {
 
 ext {
     mapstructVersion = "1.4.2.Final"
-    springCloudVersion = "Hoxton.SR11"
+    springCloudVersion = "2020.0.3"
 }
 
 
@@ -36,8 +36,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"

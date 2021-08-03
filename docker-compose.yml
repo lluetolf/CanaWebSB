@@ -4,8 +4,6 @@ services:
   field:
     build: microservices/field-service
     mem_limit: 350m
-    ports:
-      - "8001:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TZ=Europe/Zurich
@@ -18,8 +16,6 @@ services:
   payable:
     build: microservices/payable-service
     mem_limit: 350m
-    ports:
-      - "8002:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TZ=Europe/Zurich
@@ -32,8 +28,6 @@ services:
   receivable:
     build: microservices/receivable-service
     mem_limit: 350m
-    ports:
-      - "8003:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TZ=Europe/Zurich
@@ -47,10 +41,16 @@ services:
     build: microservices/field-composite-service
     mem_limit: 350m
     ports:
-      - "8010:8080"
+      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TZ=Europe/Zurich
+
+  eureka:
+    build: spring-cloud/eureka-server
+    mem_limit: 350m
+    ports:
+      - "8761:8761"
 
 
   # $ mongo
