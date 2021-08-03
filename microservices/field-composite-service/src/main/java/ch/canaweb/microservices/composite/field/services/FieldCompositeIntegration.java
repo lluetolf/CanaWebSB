@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,19 +21,18 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
 public class FieldCompositeIntegration {
     private static final Logger LOG = LoggerFactory.getLogger(FieldCompositeIntegration.class);
 
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
+    private WebClient webClient;
     private final ObjectMapper mapper;
 
     private final String fieldServiceUrl;
@@ -44,38 +42,28 @@ public class FieldCompositeIntegration {
     private final String payableServiceBaseUrl;
     private final String receivableServiceBaseUrl;
 
+    @Autowired
     public FieldCompositeIntegration(
             WebClient.Builder webClient,
-            ObjectMapper mapper,
-
-            @Value("${app.field-service.host}") String fieldServiceHost,
-            @Value("${app.field-service.port}") int fieldServicePort,
-
-            @Value("${app.payable-service.host}") String payableServiceHost,
-            @Value("${app.payable-service.port}") int payableServicePort,
-
-            @Value("${app.receivable-service.host}") String receivableServiceHost,
-            @Value("${app.receivable-service.port}") int receivableServicePort
+            ObjectMapper mapper
     ) {
-        this.webClient = webClient
-                .filter(logRequest())
-                .build();
+        this.webClientBuilder = webClient;
 
         // Configure Mapper to support LocalDate
         this.mapper = mapper;
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        this.fieldServiceBaseUrl = "http://" + fieldServiceHost + ":" + fieldServicePort;
+        this.fieldServiceBaseUrl = "http://field";
         this.fieldServiceUrl = this.fieldServiceBaseUrl + "/field/";
-        this.payableServiceBaseUrl = "http://" + payableServiceHost + ":" + payableServicePort;
+        this.payableServiceBaseUrl = "http://payable";
         this.payableServiceUrl = this.payableServiceBaseUrl + "/payable/";
-        this.receivableServiceBaseUrl = "http://" + receivableServiceHost + ":" + receivableServicePort;
+        this.receivableServiceBaseUrl = "http://receivable";
         this.receivableServiceUrl = this.receivableServiceBaseUrl + "/receivable/";
     }
 
     public List<Field> getAllFields() {
-        return webClient.get().uri(fieldServiceUrl)
+        return getWebClient().get().uri(fieldServiceUrl)
                 .retrieve()
                 .bodyToFlux(Field.class)
                 .log()
@@ -84,7 +72,7 @@ public class FieldCompositeIntegration {
     }
 
     public List<Payable> getAllPayables() {
-        return webClient.get().uri(payableServiceUrl)
+        return getWebClient().get().uri(payableServiceUrl)
                 .retrieve()
                 .bodyToFlux(Payable.class)
                 .log()
@@ -93,7 +81,7 @@ public class FieldCompositeIntegration {
     }
 
     public List<Receivable> getAllReceivables() {
-        return webClient.get().uri(receivableServiceUrl)
+        return getWebClient().get().uri(receivableServiceUrl)
                 .retrieve()
                 .bodyToFlux(Receivable.class)
                 .log()
@@ -104,7 +92,7 @@ public class FieldCompositeIntegration {
 
     public List<Payable> getPayablesForFieldId(int fieldId) {
         LOG.info("Call Payables MS:");
-        return webClient.get().uri(payableServiceUrl + "field/" + fieldId)
+        return getWebClient().get().uri(payableServiceUrl + "field/" + fieldId)
                 .retrieve()
                 .bodyToFlux(Payable.class)
                 .switchIfEmpty(Flux.empty())
@@ -114,7 +102,7 @@ public class FieldCompositeIntegration {
 
     public List<Receivable> getReceivablesForFieldId(int fieldId) {
         LOG.info("Call Receivable MS:");
-        return webClient.get().uri(receivableServiceUrl + "field/" + fieldId)
+        return getWebClient().get().uri(receivableServiceUrl + "field/" + fieldId)
                 .retrieve()
                 .bodyToFlux(Receivable.class)
                 .switchIfEmpty(Flux.empty())
@@ -125,7 +113,7 @@ public class FieldCompositeIntegration {
 
     public Field getFieldForId(int fieldId) {
         LOG.info("Call Field MS:");
-        return webClient.get().uri(fieldServiceUrl  + fieldId)
+        return getWebClient().get().uri(fieldServiceUrl  + fieldId)
                 .retrieve()
                 .bodyToMono(Field.class)
                 .switchIfEmpty(Mono.empty())
@@ -136,7 +124,7 @@ public class FieldCompositeIntegration {
 
     public Field createField(Field field) {
         LOG.info("Create Field with id: " + field);
-        return webClient.post().uri(fieldServiceUrl)
+        return getWebClient().post().uri(fieldServiceUrl)
                 .body(Mono.just(field), Field.class)
                 .retrieve()
                 .bodyToMono(Field.class)
@@ -152,7 +140,7 @@ public class FieldCompositeIntegration {
         List<Payable> returnedPayables = new ArrayList<Payable>();
         for (Payable p : payables) {
             returnedPayables.add(
-                    webClient.post().uri(payableServiceUrl)
+                    getWebClient().post().uri(payableServiceUrl)
                     .body(Mono.just(p), Payable.class)
                     .retrieve()
                     .bodyToMono(Payable.class)
@@ -170,7 +158,7 @@ public class FieldCompositeIntegration {
         List<Receivable> returnedReceivables = new ArrayList<Receivable>();
         for (Receivable p : receivables) {
             returnedReceivables.add(
-                    webClient.post().uri(receivableServiceUrl)
+                    getWebClient().post().uri(receivableServiceUrl)
                             .body(Mono.just(p), Receivable.class)
                             .retrieve()
                             .bodyToMono(Receivable.class)
@@ -193,7 +181,6 @@ public class FieldCompositeIntegration {
                     return x;
                 })
                 .doOnError(ex -> LOG.warn("getAllUpstreamStatus failed: {}", ex.toString()))
-                .log()
                 .block();
     }
 
@@ -201,7 +188,7 @@ public class FieldCompositeIntegration {
         String uri = "/actuator/health/ping";
         String url = serviceUrl + uri;
 
-        return webClient.get()
+        return getWebClient().get()
                 .uri(url)
                 .retrieve().bodyToMono(String.class)
                 .log()
@@ -256,19 +243,19 @@ public class FieldCompositeIntegration {
     }
 
     public void deleteFieldById(int fieldId) {
-        webClient.delete().uri(fieldServiceUrl + fieldId)
+        getWebClient().delete().uri(fieldServiceUrl + fieldId)
                 .retrieve()
                 .bodyToMono(Void.class)
                 .onErrorMap(ex -> handleException(ex))
                 .block();
 
-        webClient.delete().uri(payableServiceUrl + "field/" + fieldId )
+        getWebClient().delete().uri(payableServiceUrl + "field/" + fieldId )
                 .retrieve()
                 .bodyToMono(Void.class)
                 .onErrorMap(ex -> handleException(ex))
                 .block();
 
-        webClient.delete().uri(receivableServiceUrl + "field/" + fieldId )
+        getWebClient().delete().uri(receivableServiceUrl + "field/" + fieldId )
                 .retrieve()
                 .bodyToMono(Void.class)
                 .onErrorMap(ex -> handleException(ex))
@@ -285,7 +272,7 @@ public class FieldCompositeIntegration {
 
         if (!field.equals(cp.getField())) {
             returnValue.setField(
-                    webClient.patch()
+                    getWebClient().patch()
                             .uri(fieldServiceUrl)
                             .body(Mono.just(cp.getField()), Field.class)
                             .retrieve()
@@ -302,7 +289,7 @@ public class FieldCompositeIntegration {
                 LOG.info("Create Payable with payableId: " + updatedPayable.getPayableId());
                 // create new payable
                 returnValue.getPayables().add(
-                        webClient.post()
+                        getWebClient().post()
                                 .uri(payableServiceUrl)
                                 .body(Mono.just(updatedPayable), Payable.class)
                                 .retrieve()
@@ -319,7 +306,7 @@ public class FieldCompositeIntegration {
                 if(! presentValue.equals(updatedPayable)) {
                     LOG.info("Update Payable with payableId: " + updatedPayable.getPayableId());
                     returnValue.getPayables().add(
-                            webClient.patch()
+                            getWebClient().patch()
                                     .uri(payableServiceUrl)
                                     .body(Mono.just(updatedPayable), Payable.class)
                                     .retrieve()
@@ -337,7 +324,7 @@ public class FieldCompositeIntegration {
         // Delete payables only in PV but not in FV.
         for (Payable payableToDelete : payables) {
             LOG.info("Delete Payable with payableId: " + payableToDelete.getPayableId());
-            webClient.delete()
+            getWebClient().delete()
                     .uri(payableServiceUrl + payableToDelete.getPayableId())
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -352,7 +339,7 @@ public class FieldCompositeIntegration {
                 LOG.info("Create Receivable with receivableId: " + updatedReceivable.getReceivableId());
                 // create new receivable
                 returnValue.getReceivables().add(
-                        webClient.post()
+                        getWebClient().post()
                                 .uri(receivableServiceUrl)
                                 .body(Mono.just(updatedReceivable), Receivable.class)
                                 .retrieve()
@@ -369,7 +356,7 @@ public class FieldCompositeIntegration {
                 if(! presentValue.equals(updatedReceivable)) {
                     LOG.info("Update Receivable with receivableId: " + updatedReceivable.getReceivableId());
                     returnValue.getReceivables().add(
-                            webClient.patch()
+                            getWebClient().patch()
                                     .uri(receivableServiceUrl)
                                     .body(Mono.just(updatedReceivable), Receivable.class)
                                     .retrieve()
@@ -387,7 +374,7 @@ public class FieldCompositeIntegration {
         // Delete receivables only in PV but not in FV.
         for (Receivable receivableToDelete : receivables) {
             LOG.info("Delete Receivable with receivableId: " + receivableToDelete.getReceivableId());
-            webClient.delete()
+            getWebClient().delete()
                     .uri(receivableServiceUrl + receivableToDelete.getReceivableId())
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -396,5 +383,12 @@ public class FieldCompositeIntegration {
         }
         
         return  returnValue;
+    }
+
+    private WebClient getWebClient() {
+        if (webClient == null) {
+            webClient = webClientBuilder.build();
+        }
+        return webClient;
     }
 }
