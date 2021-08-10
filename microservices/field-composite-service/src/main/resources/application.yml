@@ -16,7 +16,7 @@ management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
 
-spring.application.name: product-composite
+spring.application.name: field-composite
 
 eureka:
   client:
