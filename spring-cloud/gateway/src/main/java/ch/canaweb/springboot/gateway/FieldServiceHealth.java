@@ -20,7 +20,7 @@ public class FieldServiceHealth implements ReactiveHealthIndicator {
 
     @Override
     public Mono<Health> health() {
-        String url = String.format("http://{}:8080/actuator/health", "field");
+        String url = String.format("http://%s:8080/actuator/health", "field");
         return webClient.get()
                 .uri(url).retrieve().bodyToMono(String.class)
                 .map(s -> new Health.Builder().up().build())
