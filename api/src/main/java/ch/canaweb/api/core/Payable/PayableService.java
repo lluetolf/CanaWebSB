@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface PayableService {
 
@@ -18,22 +19,21 @@ public interface PayableService {
     Mono<Payable> getPayable(@PathVariable int payableId);
 
     @GetMapping(
-            value    = "/payable/field/{fieldId}",
-            produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    Flux<Payable> getAllPayablesForField(@PathVariable int fieldId);
-
-    @DeleteMapping(
-            value    = "/payable/field/{fieldId}",
-            produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    Mono<Void> deleteAllPayablesForField(@PathVariable int fieldId);
-
-    @GetMapping(
             value    = "/payable",
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    Flux<Payable> getAllPayables();
+    Flux<Payable> getPayables(@RequestParam Optional<Integer> fieldId);
+
+    @DeleteMapping(
+            path = "/payable/{payableId}")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<Void> deletePayable(@PathVariable int payableId);
+
+    @DeleteMapping(
+            value    = "/payable",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<Void> deleteAllPayablesForField(@RequestParam("fieldId") int fieldId);
 
     @GetMapping(
             value    = "/payable/between",
@@ -63,9 +63,4 @@ public interface PayableService {
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     Mono<Payable> updatePayable(@RequestBody Payable body);
-
-    @DeleteMapping(
-            path = "/payable/{payableId}")
-    @ResponseStatus(HttpStatus.OK)
-    Mono<Void> deletePayable(@PathVariable int payableId);
 }

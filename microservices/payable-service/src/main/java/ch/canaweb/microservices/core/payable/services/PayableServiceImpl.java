@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,15 +43,7 @@ public class PayableServiceImpl implements PayableService {
                 .switchIfEmpty(Mono.error(new DataNotFoundException("No Payable found for payableId: " + payableId)));
     }
 
-    @Override
-    public Flux<Payable> getAllPayablesForField(int fieldId) {
-        LOG.info("Fetch payables for fieldID: " + fieldId);
-        return repository.findByFieldId(fieldId)
-                .log()
-                .onErrorMap( Exception.class, ex -> ex)
-                .map(mapper::entityToApi)
-                .switchIfEmpty(Flux.error(new DataNotFoundException("No Payable found for payableId: " + fieldId)));
-    }
+
 
     @Override
     public Mono<Void> deleteAllPayablesForField(int fieldId) {
@@ -60,13 +53,23 @@ public class PayableServiceImpl implements PayableService {
     }
 
     @Override
-    public Flux<Payable> getAllPayables() {
-        LOG.info("Fetch all Payables.");
-        return repository.findAll()
-                .log()
-                .onErrorMap( Exception.class, ex -> ex)
-                .map(mapper::entityToApi)
-                .switchIfEmpty(Flux.empty());
+    public Flux<Payable> getPayables(Optional<Integer> fieldId) {
+        if(fieldId.isPresent()) {
+            int id = fieldId.get().intValue();
+            LOG.info("Fetch payables for fieldID: " + id);
+            return repository.findByFieldId(id)
+                    .log()
+                    .onErrorMap( Exception.class, ex -> ex)
+                    .map(mapper::entityToApi)
+                    .switchIfEmpty(Flux.error(new DataNotFoundException("No Payable found for payableId: " + id)));
+        } else {
+            LOG.info("Fetch all Payables.");
+            return repository.findAll()
+                    .log()
+                    .onErrorMap( Exception.class, ex -> ex)
+                    .map(mapper::entityToApi)
+                    .switchIfEmpty(Flux.empty());
+        }
     }
 
     @Override
