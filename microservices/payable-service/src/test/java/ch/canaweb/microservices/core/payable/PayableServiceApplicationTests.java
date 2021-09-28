@@ -102,7 +102,7 @@ class PayableServiceApplicationTests {
     public  void getPayablesByFieldId() throws JsonProcessingException {
         int fieldId = 44;
 
-        WebTestClient.BodyContentSpec r = getAndVerifyPayable("/field/" + fieldId, HttpStatus.OK);
+        WebTestClient.BodyContentSpec r = getAndVerifyPayable("?fieldId=" + fieldId, HttpStatus.OK);
 
         EntityExchangeResult<byte[]> a = r.returnResult();
         assertNotNull(a.getResponseBody());
@@ -119,7 +119,7 @@ class PayableServiceApplicationTests {
     public  void getPayableByFieldIdNonExistent() {
         int fieldId = 88;
 
-        WebTestClient.BodyContentSpec r = getAndVerifyPayable("/field/" + fieldId, HttpStatus.NOT_FOUND);
+        WebTestClient.BodyContentSpec r = getAndVerifyPayable("?fieldId=" + fieldId, HttpStatus.NOT_FOUND);
     }
 
     @Test
