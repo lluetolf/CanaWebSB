@@ -19,11 +19,6 @@ ribbon.ServerListRefreshInterval: 5000
 ribbon.NFLoadBalancerPingInterval: 5
 
 spring.cloud.gateway.routes:
-  - id: field-composite
-    uri: lb://field-composite
-    predicates:
-      - Path=/field-composite/**
-
   - id: field
     uri: lb://field
     predicates:
