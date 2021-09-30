@@ -4,6 +4,3 @@ include ':util'
 include ':microservices:payable-service'
 include ':microservices:field-service'
 include ':microservices:receivable-service'
-
-include ':spring-cloud:eureka-server'
-include ':spring-cloud:gateway'
