@@ -36,7 +36,7 @@ spec:
           value: docker
         - name: TZ
           value: Europe/Zurich
-        image: payable
+        image: canaweb/payable:latest
         imagePullPolicy: IfNotPresent
         name: payable
         ports:
@@ -84,7 +84,7 @@ spec:
               value: docker
             - name: TZ
               value: Europe/Zurich
-          image: receivable
+          image: canaweb/receivable:latest
           imagePullPolicy: IfNotPresent
           name: receivable
           ports:
@@ -132,105 +132,9 @@ spec:
               value: docker
             - name: TZ
               value: Europe/Zurich
-          image: field
+          image: canaweb/field:latest
           imagePullPolicy: IfNotPresent
           name: field
-          ports:
-            - containerPort: 8080
-          resources:
-            limits:
-              memory: "350Mi"
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: eureka
-  name: eureka
-spec:
-  type: NodePort
-  ports:
-    - name: "8761"
-      port: 8761
-      targetPort: 8761
-  selector:
-    app: eureka
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: eureka
-  name: eureka
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: eureka
-  template:
-    metadata:
-      labels:
-        app: eureka
-    spec:
-      containers:
-        - env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: docker
-            - name: TZ
-              value: Europe/Zurich
-          image: cw-eureka:latest
-          imagePullPolicy: IfNotPresent
-          name: eureka
-          ports:
-            - containerPort: 8761
-          resources:
-            limits:
-              memory: "350Mi"
-      restartPolicy: Always
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: gateway
-  name: gateway
-spec:
-  type: NodePort
-  ports:
-    - name: "8080"
-      port: 8080
-      targetPort: 8080
-  selector:
-    app: gateway
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: gateway
-  name: gateway
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: gateway
-  template:
-    metadata:
-      labels:
-        app: gateway
-    spec:
-      containers:
-        - env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: docker
-            - name: TZ
-              value: Europe/Zurich
-          image: cw-gateway:latest
-          imagePullPolicy: IfNotPresent
-          name: gateway
           ports:
             - containerPort: 8080
           resources:
@@ -245,7 +149,6 @@ metadata:
     app: mongodb
   name: mongodb
 spec:
-  type: NodePort
   ports:
     - name: "27017"
       port: 27017
@@ -280,3 +183,30 @@ spec:
               value: docker
             - name: TZ
               value: Europe/Zurich
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: field
+                port:
+                  number: 8080
+  ingressClassName: nginx
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+spec:
+  controller: k8s.io/ingress-nginx
