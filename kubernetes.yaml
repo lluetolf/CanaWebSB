@@ -1,0 +1,282 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: payable
+  name: payable
+spec:
+  ports:
+    - name: "http"
+      port: 80
+      targetPort: 80
+  selector:
+    app: payable
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: payable
+  name: payable
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payable
+  template:
+    metadata:
+      labels:
+        app: payable
+    spec:
+      containers:
+      - env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: docker
+        - name: TZ
+          value: Europe/Zurich
+        image: payable
+        imagePullPolicy: IfNotPresent
+        name: payable
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "350Mi"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: receivable
+  name: receivable
+spec:
+  ports:
+    - name: "http"
+      port: 80
+      targetPort: 80
+  selector:
+    app: receivable
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: receivable
+  name: receivable
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: receivable
+  template:
+    metadata:
+      labels:
+        app: receivable
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: TZ
+              value: Europe/Zurich
+          image: receivable
+          imagePullPolicy: IfNotPresent
+          name: receivable
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "350Mi"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: field
+  name: field
+spec:
+  ports:
+    - name: "http"
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: field
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: field
+  name: field
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: field
+  template:
+    metadata:
+      labels:
+        app: field
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: TZ
+              value: Europe/Zurich
+          image: field
+          imagePullPolicy: IfNotPresent
+          name: field
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "350Mi"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: eureka
+  name: eureka
+spec:
+  type: NodePort
+  ports:
+    - name: "8761"
+      port: 8761
+      targetPort: 8761
+  selector:
+    app: eureka
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: eureka
+  name: eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: TZ
+              value: Europe/Zurich
+          image: cw-eureka:latest
+          imagePullPolicy: IfNotPresent
+          name: eureka
+          ports:
+            - containerPort: 8761
+          resources:
+            limits:
+              memory: "350Mi"
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gateway
+  name: gateway
+spec:
+  type: NodePort
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: gateway
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gateway
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: TZ
+              value: Europe/Zurich
+          image: cw-gateway:latest
+          imagePullPolicy: IfNotPresent
+          name: gateway
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "350Mi"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb
+spec:
+  type: NodePort
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  selector:
+    app: mongodb
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: TZ
+              value: Europe/Zurich
