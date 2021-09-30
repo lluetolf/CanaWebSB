@@ -280,11 +280,13 @@ spec:
       protocol: TCP
       targetPort: http
       appProtocol: http
+      nodePort: 31111
     - name: https
       port: 443
       protocol: TCP
       targetPort: https
       appProtocol: https
+      nodePort: 32222
   selector:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/instance: ingress-nginx
