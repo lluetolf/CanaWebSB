@@ -8,6 +8,12 @@ import reactor.core.publisher.Mono;
 public interface FieldService {
 
     @GetMapping(
+            path = "/version",
+            produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    Mono<String> getVersion();
+
+    @GetMapping(
             path = "/field/{fieldId}",
             produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
