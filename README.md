@@ -8,3 +8,7 @@ kubectl apply -f kubernetes.yaml                                                
 kubectl.exe -n ingress-nginx get svc                <br />
 https: https://localhost:32222/ui/                  <br />
 http: http://localhost:31111/ui                     <br />
+
+
+# Restart all pods with latest image
+kubectl -n default rollout restart deploy
