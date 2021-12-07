@@ -29,6 +29,11 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    public Mono<String> getVersion() {
+        return Mono.just("V1.0");
+    }
+
+    @Override
     public Mono<Field> getField(int fieldId) {
         LOG.info("Fetch Field with id: " + fieldId);
         return repository.findByFieldId(fieldId)
