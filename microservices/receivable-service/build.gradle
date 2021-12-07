@@ -10,10 +10,24 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
+plugins {
+    id 'application'
+    id 'idea'
+    id "com.bmuschko.docker-remote-api"
+}
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
+
+// Use task types
+task buildAndCreateDockerImage(type: DockerBuildImage) {
+    dependsOn build
+    inputDir = file('.')
+    images.add('canaweb/receivable:latest')
+}
+
 
 group = 'ch.canaweb.microservices.core.receivable'
 version = '0.0.1-SNAPSHOT'
